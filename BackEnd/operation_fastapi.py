@@ -12,6 +12,7 @@ from custom_exception import CustomException
 from cart_repository import cart_request, cart_repo
 from rating_repository import rating_repo
 from buy_history_repository import buy_history_repo
+from orders_repository import order_repo,OrderRequest
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
 
@@ -204,13 +205,18 @@ def delete_comment(login_id: int, product_id: int):
 
 ######################    buy history ##############################
 
-
-@app.post("/buy-now")
-def buy_now(login_id: int, product_id: int, delivared_address: int):
+@app.post("/order")
+def place_order(order_details: OrderRequest):
     try:
-        return buy_history_repo().add_buy_history(
-            login_id, product_id, delivared_address
-        )
+        return order_repo().order_item(order_details)
+    except Exception as e:
+        print(e)
+        return JSONResponse("SOMETHING WENT WRONG", status_code=400)
+
+@app.get("/orders/get")
+def get_user_orders(login_id: int):
+    try:
+        return order_repo().update_and_get_user_orders(login_id)
     except Exception as e:
         print(e)
         return JSONResponse("SOMETHING WENT WRONG", status_code=400)
