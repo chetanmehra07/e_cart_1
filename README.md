@@ -1,4 +1,4 @@
-# e_cart_1
-## this is basic e-cart website
+# QuickKart
+## This is a basic e-cart website.
 <br>
-author :  chetan mehra 
+### AUTHOR  :  CHETAN MEHRA
