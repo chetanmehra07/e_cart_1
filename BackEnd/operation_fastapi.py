@@ -48,6 +48,9 @@ def get_store_items():
 def get_item(product_id):
     item=item_repo().getdata(product_id)
     return item
+@app.post("/store/add")
+def add_item(name, mrp, discount, stock, free_delivery:bool, category_id, image, policies, specs):
+    return item_repo().add_item(name, mrp, discount, stock, free_delivery, category_id, image, policies, specs)
 @app.get("/policy")
 def get_policy(policy_id):
     policy=policy_repo().getdata(policy_id)
@@ -147,15 +150,27 @@ def change_default_address(loginid,address_id):
         
  ########################  ratings          #################
 @app.post("/rate/")
-def rate_product(login_id: int, product_id: int, rating: int):
+def rate_product(
+    login_id: int,
+    product_id: int,
+    rating: int,
+    comment: str = None
+):
     if rating < 1 or rating > 5:
         return {"error": "Rating must be between 1 and 5"}
-    return rating_repo().give_rating(login_id, product_id, rating)
+    return rating_repo().give_rating(login_id, product_id, rating, comment)
 
 @app.get("/rating/get")
-def show_rating(product_id):
-    return  rating_repo().get_rating(product_id)
+def show_rating(product_id: int):
+    return rating_repo().get_rating(product_id)
 
+@app.delete("/rate/")
+def delete_rating(login_id: int, product_id: int):
+    return rating_repo().delete_rating(login_id, product_id)
+
+@app.delete("/rate/comment/")
+def delete_comment(login_id: int, product_id: int):
+    return rating_repo().delete_comment(login_id, product_id)
 
 ######################    buy history ##############################
 

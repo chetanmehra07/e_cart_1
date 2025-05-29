@@ -48,7 +48,7 @@ class item_repo(db_class):
         finally:
             session.close()
 
-    def add_item(self, name, mrp, discount, stock, free_delivery, category_id, image, policies, specs):
+    def add_item(self, name, mrp, discount, stock, free_delivery:bool, category_id, image, policies, specs):
         session = self.Session()
         try:
             item = self.ListItem(
