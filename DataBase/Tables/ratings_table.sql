@@ -8,5 +8,7 @@ CREATE TABLE ratings (
     FOREIGN KEY (login_id) REFERENCES login(loginid) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES list_items(product_id) ON DELETE CASCADE
 );
+alter table ratings
+add column header_cmt varchar(20);
 
 select * from ratings
