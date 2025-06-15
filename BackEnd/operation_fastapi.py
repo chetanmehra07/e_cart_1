@@ -13,9 +13,18 @@ from cart_repository import cart_request, cart_repo
 from rating_repository import rating_repo
 from buy_history_repository import buy_history_repo
 from orders_repository import order_repo,OrderRequest
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # OR "https" if you're using SSL
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers (e.g., Content-Type, Authorization)
+)
 
 class CartItem(BaseModel):
     name: str
@@ -46,14 +55,18 @@ def read_root():
 
 @app.get("/store")
 def get_store_items():
-    item = item_repo().view_all_items()
-    return item
+    try:
+        item = item_repo().view_all_items()
+        return item
+    except Exception as e:
+        print("Error in /store:", e)
+        return JSONResponse({"error": "Something went wrong."}, status_code=500)
 
 
-@app.get("/store/product")
-def get_item(product_id):
-    item = item_repo().getdata(product_id)
-    return item
+@app.get("/store/product/{product_id}")
+def get_all_details_of_item(product_id):
+    return item_repo().view_all_details_of_item(product_id)
+
 
 
 @app.post("/store/add")
@@ -93,8 +106,9 @@ def get_all_categories():
 
 
 @app.get("/product")
-def get_all_details_of_item(product_id):
-    return item_repo().view_all_details_of_item(product_id)
+def get_item(product_id):
+    item = item_repo().getdata(product_id)
+    return item
 
 
 #######################  login    #############
