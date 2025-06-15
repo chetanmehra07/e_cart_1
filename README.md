@@ -13,6 +13,6 @@ _A minimal e-cart web application_
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 _Chetan Mehra_
