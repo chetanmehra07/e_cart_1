@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import type { Product } from "../../app/models/product";
+
 import {
   Box,
   Button,
@@ -14,24 +13,21 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useFetchProductDetailsQuery } from "./catalogApi";
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const [product, setProduct] = useState<Product | null>(null);
-  useEffect(() => {
-    fetch(`http://localhost:8000/store/product/${id}`)
-      .then((response) => response.json())
-      .then((data) => setProduct(data))
-      .catch((error) => console.log(error));
-  }, [id]);
+  const { data: product, isLoading } = useFetchProductDetailsQuery(
+    id ? +id : 0
+  );
 
-  if (!product) return <div>Loading...</div>;
+  if (!product || isLoading) return <div>Loading...</div>;
 
   const ProductDetails = [
     { label: "Name", value: product.product_name },
     { label: "Description", value: product.specs },
     { label: "Type", value: product.category_name },
-    { label: "Discount", value: product.discount },
+    { label: "Discount in %", value: product.discount },
     {
       label: "Free delivery",
       value: product.free_delivery_status ? "Yes" : "No",
@@ -120,7 +116,7 @@ export default function ProductDetails() {
           </Grid2>
           <Grid2 size={6}>
             <Button
-              sx={{ height: "53px" }}
+              sx={{ height: "53px", fontSize: "1rem", fontWeight: "500" }}
               color="secondary"
               size="large"
               variant="contained"
