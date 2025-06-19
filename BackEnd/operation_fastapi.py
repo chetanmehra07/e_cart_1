@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Union, Dict, List
+from contact_repository import ContactCreate,contact_repo
 from login_repository import signup_request, login_repo
 from itemrepository import item_repo
 from policies_repository import policy_repo
@@ -109,6 +110,16 @@ def get_all_categories():
 def get_item(product_id):
     item = item_repo().getdata(product_id)
     return item
+
+@app.post("/contact/add")
+def add_contact(contact_details:ContactCreate):
+    try:
+
+        return contact_repo().save_contact(contact_details)
+    except CustomException as e:
+        return JSONResponse(str(e), status_code=400)
+    except Exception as e:
+        return JSONResponse("SOMETHING WENT WRONG", status_code=400)
 
 
 #######################  login    #############

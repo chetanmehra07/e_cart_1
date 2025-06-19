@@ -75,10 +75,10 @@ export default function NavBar() {
             component={NavLink}
             to="/"
             variant="h6"
+            color="secondary"
             sx={{
               fontFamily: "'Dancing Script', cursive",
-              fontWeight: 600,
-              color: darkMode ? "#ffffff" : "#1a1a1a",
+              fontWeight: 900,
               textDecoration: "none",
             }}
           >

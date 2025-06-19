@@ -27,7 +27,7 @@ export default function ProductDetails() {
     { label: "Name", value: product.product_name },
     { label: "Description", value: product.specs },
     { label: "Type", value: product.category_name },
-    { label: "Discount in %", value: product.discount },
+    { label: "Discount", value: `${product.discount.toFixed(2)}%` },
     {
       label: "Free delivery",
       value: product.free_delivery_status ? "Yes" : "No",
