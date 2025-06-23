@@ -179,7 +179,7 @@ const AboutPage = () => {
               color="secondary"
               size="large"
               onClick={() => navigate("/catalog")}
-              sx={{ fontWeight: 500, fontSize: "1.1rem" }}
+              sx={{ fontWeight: 500, fontSize: "1.1rem", borderRadius: 3 }}
             >
               Explore Our Products
             </Button>

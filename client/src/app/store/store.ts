@@ -1,25 +1,27 @@
-import { configureStore, legacy_createStore } from "@reduxjs/toolkit";
-import counterReducer, {
-  counterSlice,
-} from "../../features/contact/counterReducer";
+import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
+import { counterSlice } from "../../features/contact/counterReducer";
 import { catalogApi } from "../../features/catalog/catalogApi";
+// ✅ newly added
 import { uiSlice } from "../layout/uiSlice";
+import { apiSlice } from "../api/apiSlice";
 
-export function configureTheStore() {
-  return legacy_createStore(counterReducer);
-}
-
+// ✅ configureStore with all slices and APIs
 export const store = configureStore({
   reducer: {
-    [catalogApi.reducerPath]: catalogApi.reducer,
     counter: counterSlice.reducer,
     ui: uiSlice.reducer,
+    [catalogApi.reducerPath]: catalogApi.reducer,
+    [apiSlice.reducerPath]: apiSlice.reducer, // ✅ include basket API reducer
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(catalogApi.middleware),
+    getDefaultMiddleware().concat(
+      catalogApi.middleware,
+      apiSlice.middleware // ✅ include basket API middleware
+    ),
 });
 
+// ✅ Infer types
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 

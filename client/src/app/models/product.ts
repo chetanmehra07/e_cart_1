@@ -6,7 +6,7 @@ export type Product = {
   stock_avl: number;
   free_delivery_status: boolean;
   item_category: number;
-  category_name: string; // 👈 Add this line
+  category_name: string;
   product_image: string;
   specs: string;
   applicable_policies?: {

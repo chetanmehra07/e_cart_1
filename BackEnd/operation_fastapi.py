@@ -101,9 +101,10 @@ def get_all_category_products(category_id):
     return category_repo().getdata(category_id)
 
 
-@app.get("/categories")
+@app.get("/category")
 def get_all_categories():
     return category_repo().view_all_categories()
+
 
 
 @app.get("/product")

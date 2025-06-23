@@ -109,6 +109,7 @@ class item_repo(db_class):
             items = session.query(self.ListItem).all()
             items_list = []
             for item in items:
+                category_name = category_repo().get_category_name_by_id(item.item_category)
                 item_dict = {
                     "product_id": item.product_id,
                     "product_name": item.product_name,
@@ -117,6 +118,7 @@ class item_repo(db_class):
                     "stock_avl": item.stock_avl,
                     "free_delivery_status": item.free_delivery_status,
                     "item_category": item.item_category,
+                    "category_name": category_name, 
                     "product_image": item.product_image,
                     "applicable_policies": item.applicable_policies,
                     "specs": item.specs,

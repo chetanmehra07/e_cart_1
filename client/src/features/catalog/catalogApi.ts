@@ -1,6 +1,9 @@
+// src/features/catalog/catalogApi.ts
 import { createApi } from "@reduxjs/toolkit/query/react";
 import type { Product } from "../../app/models/product";
+
 import { baseQueryWithErrorHandling } from "../../app/api/baseApi";
+import type { Category } from "../../app/models/catagory";
 
 export const catalogApi = createApi({
   reducerPath: "catalogApi",
@@ -12,8 +15,14 @@ export const catalogApi = createApi({
     fetchProductDetails: builder.query<Product, number>({
       query: (productId) => `store/product/${productId}`,
     }),
+    fetchCategories: builder.query<Category[], void>({
+      query: () => ({ url: "category" }), // adjust endpoint as needed
+    }),
   }),
 });
 
-export const { useFetchProductDetailsQuery, useFetchProductsQuery } =
-  catalogApi;
+export const {
+  useFetchProductsQuery,
+  useFetchProductDetailsQuery,
+  useFetchCategoriesQuery,
+} = catalogApi;

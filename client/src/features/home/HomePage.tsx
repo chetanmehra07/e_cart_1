@@ -28,15 +28,32 @@ export default function HeroSection() {
         {/* Left Text */}
         <Grid item xs={12} md={6}>
           <Typography
-            fontSize="3.3rem"
+            fontSize="2.5rem"
             fontWeight="bold"
             fontFamily={"cursive"}
             color="secondary"
-            gutterBottom
+            sx={{ mb: "-0.5rem" }}
           >
-            Welcome to Re-Store !
+            Welcome to
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography
+            fontSize="4.2rem"
+            fontWeight="bold"
+            fontFamily={"cursive"}
+            color="secondary"
+            sx={{ mb: "0.5rem" }}
+          >
+            Re-Store !
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              maxWidth: "600",
+              textAlign: "justify",
+              textJustify: "inter-word",
+            }}
+            paragraph
+          >
             At Re-Store, we bring you the best in electronics from powerful
             laptops to the latest smartphones and gadgets. Shop smart, save
             more, and enjoy reliable tech delivered to your doorstep.

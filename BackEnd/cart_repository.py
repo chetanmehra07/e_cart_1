@@ -94,20 +94,31 @@ class cart_repo(db_class):
     def get_cart_list(self, loginid):
         session = self.Session()
         try:
-            items = session.query(self.Cart).filter_by(loginid=loginid).all()
+            # Join cart and product info
+            items = (
+                session.query(self.Cart, self.ListItem)
+                .join(self.ListItem, self.Cart.product_id == self.ListItem.product_id)
+                .filter(self.Cart.loginid == loginid)
+                .all()
+            )
+
             cart_list = []
-            for item in items:
-                cart_list.append(
-                    {
-                        "cart_id": item.cart_id,
-                        "product_id": item.product_id,
-                        "item_count": item.item_count,
-                        "added_date": str(item.added_date),
-                    }
-                )
+            for cart_item, product in items:
+                cart_list.append({
+                    "cart_id": cart_item.cart_id,
+                    "product_id": cart_item.product_id,
+                    "item_count": cart_item.item_count,
+                    "added_date": str(cart_item.added_date),
+                    "product_name": product.product_name,
+                    "MRP": product.MRP,
+                    "product_image": product.product_image,
+                    "discount": product.discount
+                })
+
             return cart_list
         finally:
             session.close()
+
 
     def delete_item_from_cart(self, loginid, product_id):
         session = self.Session()

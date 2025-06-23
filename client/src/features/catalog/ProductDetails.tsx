@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-
 import {
   Box,
   Button,
@@ -12,14 +11,28 @@ import {
   TableRow,
   TextField,
   Typography,
+  Snackbar,
+  Alert,
 } from "@mui/material";
+import { useState } from "react";
 import { useFetchProductDetailsQuery } from "./catalogApi";
+import {
+  useUpdateCartItemMutation,
+  useFetchBasketQuery,
+} from "../../app/api/apiSlice";
+
+const loginid = 1;
 
 export default function ProductDetails() {
   const { id } = useParams();
   const { data: product, isLoading } = useFetchProductDetailsQuery(
     id ? +id : 0
   );
+  const { data: basket } = useFetchBasketQuery(loginid);
+  const [updateCartItem] = useUpdateCartItemMutation();
+  const [quantity, setQuantity] = useState(1);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackError, setSnackError] = useState(false);
 
   if (!product || isLoading) return <div>Loading...</div>;
 
@@ -35,6 +48,28 @@ export default function ProductDetails() {
     { label: "Quantity in stock", value: product.stock_avl },
   ];
 
+  const handleAddToCart = async () => {
+    try {
+      const existingItem = basket?.find(
+        (item) => item.product_id === product.product_id
+      );
+      const updatedCount = existingItem
+        ? existingItem.item_count + quantity
+        : quantity;
+
+      await updateCartItem({
+        loginid,
+        product_id: product.product_id,
+        item_count: updatedCount,
+        added_date: new Date().toISOString().split("T")[0],
+      });
+      setSnackOpen(true);
+    } catch (err) {
+      console.error("Add to cart failed:", err);
+      setSnackError(true);
+    }
+  };
+
   return (
     <Grid2 container spacing={6} maxWidth="lg" sx={{ mx: "auto" }}>
       <Grid2 size={6}>
@@ -46,10 +81,15 @@ export default function ProductDetails() {
       </Grid2>
       <Grid2 size={6}>
         <Typography variant="h3">{product.product_name}</Typography>
-        <Divider sx={{ mb: "9" }} />
-        <Typography variant="h4" color="secondary.main">
-          ${(product.MRP / 100).toFixed(2)}
+        <Divider sx={{ mb: 2 }} />
+        <Typography variant="h4" color="secondary.main" fontWeight="bold">
+          ${((product.MRP / 100) * (1 - product.discount / 100)).toFixed(2)}
         </Typography>
+        <Typography variant="subtitle1" color="text.secondary">
+          <s>${(product.MRP / 100).toFixed(2)}</s> &nbsp; (
+          {product.discount.toFixed(0)}% OFF)
+        </Typography>
+
         <TableContainer>
           <Table sx={{ fontSize: "2rem" }}>
             <TableBody>
@@ -66,14 +106,14 @@ export default function ProductDetails() {
             </TableBody>
           </Table>
         </TableContainer>
-        <Box mt={1}>
+
+        {/* Policies */}
+        <Box mt={2}>
           <Typography
             variant="h5"
             fontWeight="500"
             gutterBottom
-            marginBottom="10px"
-            marginLeft="3px"
-            sx={{ color: "secondary.main" }}
+            sx={{ color: "secondary.main", mb: 1 }}
           >
             Applicable Policies
           </Typography>
@@ -94,16 +134,14 @@ export default function ProductDetails() {
                   {policy.policy_name}
                 </Typography>
               </Box>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ ml: 3 }} // aligns under the text, not the bullet
-              >
+              <Typography variant="body2" color="text.secondary" sx={{ ml: 3 }}>
                 {policy.policy_description}
               </Typography>
             </Box>
           ))}
         </Box>
+
+        {/* Add to Basket */}
         <Grid2 container spacing={2} marginTop={3}>
           <Grid2 size={6}>
             <TextField
@@ -111,7 +149,9 @@ export default function ProductDetails() {
               type="number"
               label="Quantity in basket"
               fullWidth
-              defaultValue={1}
+              inputProps={{ min: 1 }}
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, +e.target.value))}
             />
           </Grid2>
           <Grid2 size={6}>
@@ -121,12 +161,50 @@ export default function ProductDetails() {
               size="large"
               variant="contained"
               fullWidth
+              onClick={handleAddToCart}
             >
               Add to Basket
             </Button>
           </Grid2>
         </Grid2>
       </Grid2>
+
+      {/* Snackbars */}
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackOpen(false)}
+          severity="success"
+          variant="filled"
+          sx={{
+            width: "100%",
+            fontSize: "1rem",
+            py: 1,
+            borderRadius: "10px",
+            backgroundColor: "secondary.main",
+          }}
+        >
+          Added to cart successfully!
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={snackError}
+        autoHideDuration={3000}
+        onClose={() => setSnackError(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackError(false)}
+          severity="error"
+          variant="filled"
+        >
+          Failed to add item to cart!
+        </Alert>
+      </Snackbar>
     </Grid2>
   );
 }
