@@ -74,70 +74,30 @@ export default function Catalog() {
           }}
         />
 
-        <Typography
-          variant="h6"
-          fontWeight="bold"
-          sx={{ color: "secondary.main" }}
+        <Box
+          sx={{
+            border: "2px solid rgb(161, 159, 161)", // light purple border
+            borderRadius: 1.2,
+            p: 2,
+            mb: 3,
+          }}
         >
-          Sort by
-        </Typography>
-        <RadioGroup value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-          <FormControlLabel
-            value="alphabetical"
-            control={
-              <Radio
-                sx={{
-                  "&.Mui-checked": {
-                    color: "secondary.main", // Selected (Purple)
-                  },
-                }}
-              />
-            }
-            label="Alphabetical"
-          />
-          <FormControlLabel
-            value="priceHigh"
-            control={
-              <Radio
-                sx={{
-                  "&.Mui-checked": {
-                    color: "secondary.main",
-                  },
-                }}
-              />
-            }
-            label="Price: High to Low"
-          />
-          <FormControlLabel
-            value="priceLow"
-            control={
-              <Radio
-                sx={{
-                  "&.Mui-checked": {
-                    color: "secondary.main",
-                  },
-                }}
-              />
-            }
-            label="Price: Low to High"
-          />
-        </RadioGroup>
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            sx={{ color: "secondary.main", mb: 1 }}
+          >
+            Sort by
+          </Typography>
 
-        <Typography
-          variant="h6"
-          fontWeight="bold"
-          sx={{ mt: 2, color: "secondary.main" }}
-        >
-          Categories
-        </Typography>
-        <FormGroup>
-          {categories.map((cat) => (
+          <RadioGroup
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
             <FormControlLabel
-              key={cat.category_id}
+              value="alphabetical"
               control={
-                <Checkbox
-                  checked={selectedCategories.includes(cat.category_name)}
-                  onChange={() => handleCategoryChange(cat.category_name)}
+                <Radio
                   sx={{
                     "&.Mui-checked": {
                       color: "secondary.main",
@@ -145,13 +105,77 @@ export default function Catalog() {
                   }}
                 />
               }
-              label={cat.category_name
-                .split(" ")
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(" ")}
+              label="Alphabetical"
             />
-          ))}
-        </FormGroup>
+            <FormControlLabel
+              value="priceHigh"
+              control={
+                <Radio
+                  sx={{
+                    "&.Mui-checked": {
+                      color: "secondary.main",
+                    },
+                  }}
+                />
+              }
+              label="Price: High to Low"
+            />
+            <FormControlLabel
+              value="priceLow"
+              control={
+                <Radio
+                  sx={{
+                    "&.Mui-checked": {
+                      color: "secondary.main",
+                    },
+                  }}
+                />
+              }
+              label="Price: Low to High"
+            />
+          </RadioGroup>
+        </Box>
+
+        <Box
+          sx={{
+            border: "2px solid rgb(161, 159, 161)", // light purple border
+            borderRadius: 1.2,
+            p: 2,
+            mt: 2,
+          }}
+        >
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            sx={{ color: "secondary.main", mb: 1 }}
+          >
+            Categories
+          </Typography>
+
+          <FormGroup>
+            {categories.map((cat) => (
+              <FormControlLabel
+                key={cat.category_id}
+                control={
+                  <Checkbox
+                    checked={selectedCategories.includes(cat.category_name)}
+                    onChange={() => handleCategoryChange(cat.category_name)}
+                    sx={{
+                      "&.Mui-checked": {
+                        color: "secondary.main",
+                      },
+                    }}
+                  />
+                }
+                label={cat.category_name
+                  .split(" ")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ")}
+              />
+            ))}
+          </FormGroup>
+        </Box>
+
         <Button
           variant="contained"
           onClick={() => setSelectedCategories([])}
