@@ -71,17 +71,18 @@ class login_repo(db_class):
     def signin(self, phoneNo, password):
         session = self.Session()
         try:
-            user = session.query(self.Login).filter_by(phoneNo=phoneNo).first()
+            user = (
+                session.query(self.Login)
+                .filter_by(phoneNo=phoneNo, password=password)
+                .first()
+            )
             if user:
-                user = session.query(self.Login).filter_by(password=password).first()
-                if user:
-                    return user.loginid
-                else:
-                    raise CustomException("passward incorect")
+                return {"loginid": user.loginid, "UserName": user.UserName}
             else:
-                raise CustomException("user not found")
+                raise CustomException("Invalid phone number or password")
         finally:
             session.close()
+
 
     def get_login_info(self, loginid):
         session = self.Session()

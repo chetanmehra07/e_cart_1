@@ -1,4 +1,3 @@
-import { DarkMode, LightMode, ShoppingCart } from "@mui/icons-material";
 import {
   AppBar,
   Badge,
@@ -11,33 +10,19 @@ import {
   Typography,
 } from "@mui/material";
 import { Link, NavLink } from "react-router-dom";
+import { DarkMode, LightMode, ShoppingCart } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { setDarkMode } from "./uiSlice";
 import { useFetchBasketQuery } from "../api/apiSlice";
 
 const midLinks = [
-  {
-    title: "catalog",
-    path: "/catalog",
-  },
-  {
-    title: "about",
-    path: "/about",
-  },
-  {
-    title: "contact",
-    path: "/contact",
-  },
+  { title: "catalog", path: "/catalog" },
+  { title: "about", path: "/about" },
+  { title: "contact", path: "/contact" },
 ];
 const rightLinks = [
-  {
-    title: "login",
-    path: "/login",
-  },
-  {
-    title: "register",
-    path: "/register",
-  },
+  { title: "login", path: "/login" },
+  { title: "register", path: "/register" },
 ];
 
 const navStyles = {
@@ -54,10 +39,10 @@ const navStyles = {
 };
 
 export default function NavBar() {
-  const { isLoading, darkMode } = useAppSelector((state) => state.ui);
   const dispatch = useAppDispatch();
-  const loginid = 1; // Replace with actual login logic if needed
-  const { data: basketItems } = useFetchBasketQuery(loginid);
+  const { darkMode, isLoading } = useAppSelector((state) => state.ui);
+  const { user } = useAppSelector((state) => state.account);
+  const { data: basketItems } = useFetchBasketQuery(user?.loginid ?? 0);
 
   const itemCount =
     basketItems?.reduce((total, item) => total + item.item_count, 0) || 0;
@@ -77,6 +62,7 @@ export default function NavBar() {
           alignItems: "center",
         }}
       >
+        {/* Left: Logo & Theme Toggle */}
         <Box display="flex" alignItems="center">
           <Typography
             component={NavLink}
@@ -95,6 +81,8 @@ export default function NavBar() {
             {darkMode ? <LightMode /> : <DarkMode />}
           </IconButton>
         </Box>
+
+        {/* Middle: Navigation Links */}
         <List sx={{ display: "flex" }}>
           {midLinks.map(({ title, path }) => (
             <ListItem component={NavLink} to={path} key={path} sx={navStyles}>
@@ -102,26 +90,48 @@ export default function NavBar() {
             </ListItem>
           ))}
         </List>
+
+        {/* Right: Cart + Auth */}
         <Box display="flex" alignItems="center">
-          <IconButton
-            component={Link}
-            to="/basket"
-            size="medium"
-            sx={{ color: "inherit" }}
-          >
+          <IconButton component={Link} to="/basket" size="medium">
             <Badge badgeContent={itemCount} color="secondary">
               <ShoppingCart />
             </Badge>
           </IconButton>
-          <List sx={{ display: "flex" }}>
-            {rightLinks.map(({ title, path }) => (
-              <ListItem component={NavLink} to={path} key={path} sx={navStyles}>
-                {title.toUpperCase()}
-              </ListItem>
-            ))}
-          </List>
+
+          {user ? (
+            <Typography
+              component={NavLink}
+              to="/profile"
+              variant="h6"
+              sx={{
+                ml: 2,
+                cursor: "pointer",
+                color: "secondary.main",
+                fontFamily: "'Dancing Script', cursive",
+                fontWeight: 900,
+                textDecoration: "none",
+              }}
+            >
+              {user.UserName}
+            </Typography>
+          ) : (
+            <List sx={{ display: "flex" }}>
+              {rightLinks.map(({ title, path }) => (
+                <ListItem
+                  component={NavLink}
+                  to={path}
+                  key={path}
+                  sx={navStyles}
+                >
+                  {title.toUpperCase()}
+                </ListItem>
+              ))}
+            </List>
+          )}
         </Box>
       </Toolbar>
+
       {isLoading && (
         <Box sx={{ width: "100%" }}>
           <LinearProgress color="secondary" />

@@ -126,7 +126,7 @@ def add_contact(contact_details:ContactCreate):
 #######################  login    #############
 
 
-@app.post("/login/signup")
+@app.post("/signup")
 def signup(signup_details: signup_request):
     try:
 
@@ -137,10 +137,15 @@ def signup(signup_details: signup_request):
         return JSONResponse("SOMETHING WENT WRONG", status_code=400)
 
 
-@app.get("/login/signin")
-def signin(phoneNo, passward):
+class SigninRequest(BaseModel):
+    phoneNo: str
+    password: str
+
+@app.post("/signin")  
+def signin(data: SigninRequest):
     try:
-        return login_repo().signin(phoneNo, passward)
+        result = login_repo().signin(data.phoneNo, data.password)
+        return result
     except CustomException as e:
         return JSONResponse(str(e), status_code=400)
     except Exception as e:

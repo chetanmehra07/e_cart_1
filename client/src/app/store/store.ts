@@ -1,24 +1,22 @@
+// store.ts
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { counterSlice } from "../../features/contact/counterReducer";
 import { catalogApi } from "../../features/catalog/catalogApi";
-// ✅ newly added
 import { uiSlice } from "../layout/uiSlice";
 import { apiSlice } from "../api/apiSlice";
+import accountReducer from "../../features/account/accountSlice"; // ✅ import
 
-// ✅ configureStore with all slices and APIs
 export const store = configureStore({
   reducer: {
     counter: counterSlice.reducer,
     ui: uiSlice.reducer,
+    account: accountReducer,
     [catalogApi.reducerPath]: catalogApi.reducer,
-    [apiSlice.reducerPath]: apiSlice.reducer, // ✅ include basket API reducer
+    [apiSlice.reducerPath]: apiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
-      catalogApi.middleware,
-      apiSlice.middleware // ✅ include basket API middleware
-    ),
+    getDefaultMiddleware().concat(catalogApi.middleware, apiSlice.middleware),
 });
 
 // ✅ Infer types
