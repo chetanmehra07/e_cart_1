@@ -16,7 +16,8 @@ import {
   useUpdateCartItemMutation,
   type CartItem,
 } from "../../app/api/apiSlice";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import { useAppSelector } from "../../app/store/store";
 
 const loginid = 1;
 
@@ -24,6 +25,7 @@ export default function BasketPage() {
   const { data, isLoading } = useFetchBasketQuery(loginid);
   const [updateCartItem] = useUpdateCartItemMutation();
   const [deleteCartItem] = useDeleteCartItemMutation();
+  const { user } = useAppSelector((state) => state.account);
 
   if (isLoading) return <Typography>Loading...</Typography>;
   if (!data || data.length === 0)
@@ -293,8 +295,8 @@ export default function BasketPage() {
           <Button
             fullWidth
             variant="contained"
-            component={Link} // 👈 make it behave like a <Link>
-            to="/checkout"
+            component={NavLink}
+            to={user ? "/checkout" : "/login"}
             sx={{
               backgroundColor: "secondary.main",
               color: "whitesmoke",

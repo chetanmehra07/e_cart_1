@@ -106,7 +106,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 10 }}>
+    <Container maxWidth="md" sx={{ mt: 10 }}>
       <Paper elevation={6} sx={{ p: 4, borderRadius: 3 }}>
         <Typography variant="h5" textAlign="center" gutterBottom>
           Register for Re-Store
@@ -126,31 +126,15 @@ export default function RegisterPage() {
 
         <Grid container spacing={2}>
           {[
-            { name: "UserName", label: "Username" },
+            { name: "UserName", label: "Username", fullWidth: true },
             { name: "first_name", label: "First Name" },
             { name: "last_name", label: "Last Name" },
-            {
-              name: "emailaddress",
-              label: "Email Address",
-              type: "email",
-            },
-            {
-              name: "phoneNo",
-              label: "Phone Number",
-              type: "tel",
-            },
-            {
-              name: "password",
-              label: "Password",
-              type: "password",
-            },
-            {
-              name: "DateOfBirth",
-              label: "Date of Birth",
-              type: "date",
-            },
-          ].map(({ name, label, type = "text" }) => (
-            <Grid item xs={12} key={name}>
+            { name: "emailaddress", label: "Email Address", type: "email" },
+            { name: "phoneNo", label: "Phone Number", type: "tel" },
+            { name: "password", label: "Password", type: "password" },
+            { name: "DateOfBirth", label: "Date of Birth", type: "date" },
+          ].map(({ name, label, type = "text", fullWidth }) => (
+            <Grid item xs={fullWidth ? 12 : 6} key={name}>
               <TextField
                 name={name}
                 label={label}
@@ -163,7 +147,7 @@ export default function RegisterPage() {
                 sx={{
                   "& label.Mui-focused": {
                     color: "secondary.main",
-                    borderWidth: "2px", // Purple label on focus
+                    borderWidth: "2px",
                   },
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": {
@@ -171,7 +155,7 @@ export default function RegisterPage() {
                     },
                     "&.Mui-focused fieldset": {
                       borderColor: "secondary.main",
-                      borderWidth: "2px", // Purple border on focus
+                      borderWidth: "2px",
                     },
                   },
                 }}
@@ -217,15 +201,29 @@ export default function RegisterPage() {
           </Grid>
         </Grid>
 
-        <Button
-          variant="contained"
-          color="secondary"
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={handleSubmit}
-        >
-          Register
-        </Button>
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          <Grid item xs={6}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              fullWidth
+              onClick={() => navigate("/address")} // Replace with your actual route
+            >
+              Add Address
+            </Button>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              onClick={handleSubmit}
+            >
+              Register
+            </Button>
+          </Grid>
+        </Grid>
       </Paper>
     </Container>
   );
