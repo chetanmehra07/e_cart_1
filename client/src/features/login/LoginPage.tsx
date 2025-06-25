@@ -117,6 +117,15 @@ export default function LoginPage() {
         >
           Login
         </Button>
+        <Typography variant="body2" textAlign="center" sx={{ mt: 3 }}>
+          Don't have an account?{" "}
+          <span
+            style={{ color: "#9c27b0", cursor: "pointer", fontWeight: "bold" }}
+            onClick={() => navigate("/register")}
+          >
+            Register
+          </span>
+        </Typography>
       </Paper>
 
       {/* ✅ Success Snackbar */}

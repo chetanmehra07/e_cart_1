@@ -293,6 +293,8 @@ export default function BasketPage() {
           <Button
             fullWidth
             variant="contained"
+            component={Link} // 👈 make it behave like a <Link>
+            to="/checkout"
             sx={{
               backgroundColor: "secondary.main",
               color: "whitesmoke",

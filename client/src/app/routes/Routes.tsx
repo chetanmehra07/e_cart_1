@@ -9,6 +9,7 @@ import BasketPage from "../../features/basket/BasketPage";
 import LoginPage from "../../features/login/LoginPage";
 import UserProfilePage from "../../features/userprofile/UserProfile";
 import RegisterPage from "../../features/resister/RegisterPage";
+import CheckoutPage from "../../features/checkout/CheckOutPage";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
       { path: "/login", element: <LoginPage /> },
       { path: "/profile", element: <UserProfilePage /> },
       { path: "/register", element: <RegisterPage /> },
+      { path: "/checkout", element: <CheckoutPage /> },
     ],
   },
 ]);
