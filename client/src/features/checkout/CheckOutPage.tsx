@@ -177,7 +177,11 @@ export default function CheckoutPage() {
                     />
                   ))
                 ) : (
-                  <Typography color="error" textAlign="center">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ fontStyle: "italic" }}
+                  >
                     ⚠️ No saved addresses found.
                   </Typography>
                 )}

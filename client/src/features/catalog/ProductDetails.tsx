@@ -20,10 +20,11 @@ import {
   useUpdateCartItemMutation,
   useFetchBasketQuery,
 } from "../../app/api/apiSlice";
-
-const loginid = 1;
+import { useAppSelector } from "../../app/store/store";
 
 export default function ProductDetails() {
+  const { user } = useAppSelector((state) => state.account);
+  const loginid = user?.loginid ?? 1;
   const { id } = useParams();
   const { data: product, isLoading } = useFetchProductDetailsQuery(
     id ? +id : 0

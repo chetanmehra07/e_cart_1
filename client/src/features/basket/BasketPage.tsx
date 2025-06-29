@@ -19,13 +19,12 @@ import {
 import { Link, NavLink } from "react-router-dom";
 import { useAppSelector } from "../../app/store/store";
 
-const loginid = 1;
-
 export default function BasketPage() {
+  const { user } = useAppSelector((state) => state.account); // ✅ now it's inside
+  const loginid = user?.loginid ?? 1;
   const { data, isLoading } = useFetchBasketQuery(loginid);
   const [updateCartItem] = useUpdateCartItemMutation();
   const [deleteCartItem] = useDeleteCartItemMutation();
-  const { user } = useAppSelector((state) => state.account);
 
   if (isLoading) return <Typography>Loading...</Typography>;
   if (!data || data.length === 0)

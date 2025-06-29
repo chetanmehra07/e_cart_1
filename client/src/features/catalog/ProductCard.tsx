@@ -15,14 +15,19 @@ import {
 } from "../../app/api/apiSlice";
 import type { Product } from "../../app/models/product";
 import { useState } from "react";
+import { useAppSelector } from "../../app/store/store";
 
 type Props = {
   product: Product;
 };
 
 export default function ProductCard({ product }: Props) {
-  const loginid = 1;
-  const { data: basket } = useFetchBasketQuery(loginid);
+  const userLoginId = useAppSelector((state) => state.account.user?.loginid);
+  const loginid = userLoginId ?? 1; // fallback to guest (id 1) if not logged in
+
+  const { data: basket } = useFetchBasketQuery(loginid!, {
+    skip: !loginid,
+  });
   const [updateCartItem] = useUpdateCartItemMutation();
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackError, setSnackError] = useState(false);
@@ -35,7 +40,7 @@ export default function ProductCard({ product }: Props) {
       const updatedCount = existingItem ? existingItem.item_count + 1 : 1;
 
       await updateCartItem({
-        loginid,
+        loginid: loginid!,
         product_id: product.product_id,
         item_count: updatedCount,
         added_date: new Date().toISOString().split("T")[0],

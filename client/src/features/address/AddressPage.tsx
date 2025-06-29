@@ -152,7 +152,7 @@ export default function AddressPage() {
             component={Link}
             to="/profile" // you can change this to wherever "Back" should go
           >
-            🔙 Back
+            Back
           </Button>
           <Button
             variant="contained"
