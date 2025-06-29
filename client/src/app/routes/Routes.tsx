@@ -10,6 +10,8 @@ import LoginPage from "../../features/login/LoginPage";
 import UserProfilePage from "../../features/userprofile/UserProfile";
 import RegisterPage from "../../features/resister/RegisterPage";
 import CheckoutPage from "../../features/checkout/CheckOutPage";
+import AddressPage from "../../features/address/AddressPage";
+import AddAddressPage from "../../features/address/AddAddressPage";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +28,8 @@ export const router = createBrowserRouter([
       { path: "/profile", element: <UserProfilePage /> },
       { path: "/register", element: <RegisterPage /> },
       { path: "/checkout", element: <CheckoutPage /> },
+      { path: "/address", element: <AddressPage /> },
+      { path: "/add-address", element: <AddAddressPage /> },
     ],
   },
 ]);

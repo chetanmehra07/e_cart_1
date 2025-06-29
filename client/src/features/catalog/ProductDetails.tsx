@@ -148,6 +148,16 @@ export default function ProductDetails() {
               variant="outlined"
               type="number"
               label="Quantity in basket"
+              sx={{
+                "& label.Mui-focused": { color: "secondary.main" },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderWidth: "2px" },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "secondary.main",
+                    borderWidth: "2px",
+                  },
+                },
+              }}
               fullWidth
               inputProps={{ min: 1 }}
               value={quantity}

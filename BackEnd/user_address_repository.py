@@ -12,6 +12,7 @@ from sqlalchemy import (
     Date,
 )
 from login_repository import login_repo
+from states_repository import states_repo
 
 
 class address_request(BaseModel):
@@ -96,6 +97,7 @@ class user_address_repo(db_class):
         finally:
             session.close()
 
+
     def get_addresses_by_login(self, login_id):
         session = self.Session()
         try:
@@ -103,19 +105,24 @@ class user_address_repo(db_class):
                 session.query(self.UserAddress).filter_by(login_id=login_id).all()
             )
             address_list = []
+            state_repo = states_repo()  # ✅ Get access to states
+
             for address in address_all:
+                state_name = state_repo.get_state_name_by_id(address.state)  # ✅ Convert int to name
+
                 address_dict = {
                     "address_id": address.address_id,
                     "login_id": address.login_id,
                     "address_part1": address.address_part1,
                     "address_part2": address.address_part2,
                     "city": address.city,
-                    "state": address.state,
+                    "state": state_name,  # ✅ Use state name here
                     "nation": address.nation,
                     "pincode": address.pincode,
                     "landmark": address.landmark,
                 }
                 address_list.append(address_dict)
+
             return address_list
         finally:
             session.close()

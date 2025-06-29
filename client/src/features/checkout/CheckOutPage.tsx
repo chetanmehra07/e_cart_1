@@ -182,6 +182,18 @@ export default function CheckoutPage() {
                   </Typography>
                 )}
               </RadioGroup>
+
+              {/* Add Address Button */}
+              <Button
+                variant="outlined"
+                color="secondary"
+                sx={{ mt: 2, alignSelf: "flex-start" }}
+                component={Link}
+                to="/add-address"
+                state={{ from: "/checkout" }}
+              >
+                + Add Address
+              </Button>
             </FormControl>
 
             <FormControl fullWidth>

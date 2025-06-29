@@ -42,7 +42,7 @@ export default function NavBar() {
   const dispatch = useAppDispatch();
   const { darkMode, isLoading } = useAppSelector((state) => state.ui);
   const { user } = useAppSelector((state) => state.account);
-  const { data: basketItems } = useFetchBasketQuery(user?.loginid ?? 0);
+  const { data: basketItems } = useFetchBasketQuery(user?.loginid ?? 1);
 
   const itemCount =
     basketItems?.reduce((total, item) => total + item.item_count, 0) || 0;

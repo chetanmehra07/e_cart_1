@@ -103,14 +103,24 @@ export default function UserProfilePage() {
 
         <Divider sx={{ my: 3 }} />
 
-        <Button
-          variant="contained"
-          color="secondary"
-          fullWidth
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={() => navigate("/address")}
+          >
+            Address
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            fullWidth
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
+        </Box>
       </Paper>
     </Container>
   );

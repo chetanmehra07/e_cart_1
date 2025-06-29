@@ -15,6 +15,7 @@ from rating_repository import rating_repo
 from buy_history_repository import buy_history_repo
 from orders_repository import order_repo,OrderRequest
 from fastapi.middleware.cors import CORSMiddleware
+from states_repository import states_repo
 
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
@@ -209,6 +210,19 @@ def change_default_address(loginid, address_id):
     except Exception as e:
         print(e)
         return JSONResponse("SOMETHING WENT WRONG", status_code=400)
+    
+
+###################  states  ########################
+@app.get("/states/all")
+def get_states():
+    return states_repo().get_all_states()
+
+@app.get("/states/name/{state_id}")
+def get_state_name(state_id: int):
+    state_name = states_repo().get_state_name_by_id(state_id)
+    if state_name:
+        return {"statename": state_name}
+    return {"error": "State not found"}
 
 
 ########################  ratings          #################
