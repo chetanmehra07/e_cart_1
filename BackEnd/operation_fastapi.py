@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Union, Dict, List
 from contact_repository import ContactCreate,contact_repo
@@ -173,13 +173,17 @@ def add_to_cart(cart_details: cart_request):
 
 
 @app.get("/cart")
-def view_cart(loginid):
+def view_cart(loginid:int):
     return cart_repo().get_cart_list(loginid)
 
 
 @app.delete("/cart/remove")
 def remove_from_cart(loginid, productid):
     return cart_repo().delete_item_from_cart(loginid, productid)
+
+@app.delete("/cart/clear")
+def clear_cart(loginid: int):
+    return cart_repo().clear_cart(loginid)
 
 
 ######################################    address   #########################
@@ -250,7 +254,7 @@ def delete_comment(login_id: int, product_id: int):
 
 ######################    buy history ##############################
 
-@app.post("/order")
+@app.post("/order/one")
 def place_order(order_details: OrderRequest):
     try:
         return order_repo().order_item(order_details)
@@ -258,13 +262,43 @@ def place_order(order_details: OrderRequest):
         print(e)
         return JSONResponse("SOMETHING WENT WRONG", status_code=400)
 
-@app.get("/orders/get")
+@app.get("/orders")
 def get_user_orders(login_id: int):
     try:
         return order_repo().update_and_get_user_orders(login_id)
     except Exception as e:
         print(e)
         return JSONResponse("SOMETHING WENT WRONG", status_code=400)
+
+@app.delete("/orders/cancel")
+def cancel_order(order_id: int):
+    try:
+        return order_repo().cancel_order(order_id)
+    except Exception as e:
+        print(e)
+        return JSONResponse("SOMETHING WENT WRONG", status_code=400)
+
+class OrderItem(BaseModel):
+    product_id: int
+    quantity: int
+class OrderPayload(BaseModel):
+    login_id: int
+    delivery_address: int
+    payment_method: str  # Optional for now
+    items: List[OrderItem]
+
+@app.post("/order/add")
+def place_order(data: OrderPayload):
+    try:
+        return order_repo().order_all_items(
+            login_id=data.login_id,
+            delivery_address=data.delivery_address,
+            items=[item.dict() for item in data.items]
+        )
+    except Exception as e:
+        print("🔥 Internal Server Error:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @app.delete("/buy_history/remove")

@@ -100,21 +100,39 @@ export default function NavBar() {
           </IconButton>
 
           {user ? (
-            <Typography
-              component={NavLink}
-              to="/profile"
-              variant="h6"
-              sx={{
-                ml: 2,
-                cursor: "pointer",
-                color: "secondary.main",
-                fontFamily: "'Dancing Script', cursive",
-                fontWeight: 900,
-                textDecoration: "none",
-              }}
-            >
-              {user.UserName}
-            </Typography>
+            <Box display="flex" alignItems="center">
+              <Typography
+                component={NavLink}
+                to="/profile"
+                variant="h6"
+                sx={{
+                  ml: 2,
+                  cursor: "pointer",
+                  color: "secondary.main",
+                  fontFamily: "'Dancing Script', cursive",
+                  fontWeight: 900,
+                  textDecoration: "none",
+                }}
+              >
+                {user.UserName}
+              </Typography>
+
+              <Typography
+                component={NavLink}
+                to="/orders"
+                variant="h6"
+                sx={{
+                  ml: 2,
+                  cursor: "pointer",
+                  color: "secondary.main",
+                  fontFamily: "'Dancing Script', cursive",
+                  fontWeight: 900,
+                  textDecoration: "none",
+                }}
+              >
+                Orders
+              </Typography>
+            </Box>
           ) : (
             <List sx={{ display: "flex" }}>
               {rightLinks.map(({ title, path }) => (

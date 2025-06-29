@@ -136,3 +136,13 @@ class cart_repo(db_class):
                 print("Item not found in cart.")
         finally:
             session.close()
+    
+    def clear_cart(self, loginid: int):
+        session = self.Session()
+        try:
+            session.query(self.Cart).filter_by(loginid=loginid).delete()
+            session.commit()
+            print(f"✅ All cart items deleted for login_id {loginid}")
+            return {"message": "Cart cleared successfully."}
+        finally:
+            session.close()

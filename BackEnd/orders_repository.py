@@ -1,3 +1,5 @@
+import traceback
+from typing import List
 from base_db_class import db_class
 from pydantic import BaseModel
 from sqlalchemy.orm import declarative_base
@@ -16,6 +18,8 @@ from sqlalchemy import (
 )
 import random
 from datetime import date, timedelta  
+from user_address_repository import user_address_repo
+
 
 class OrderRequest(BaseModel):
     login_id: int
@@ -79,14 +83,114 @@ class order_repo(db_class):
         total_price = Column(Float, nullable=False)
         delivery_address = Column(Integer, ForeignKey('user_address.address_id', ondelete='CASCADE'), nullable=False)
     
-    def order_item(self, a:OrderRequest):
+    # def order_item(self, a:OrderRequest):
+    #     session = self.Session()
+    #     try:
+    #         product = session.query(self.ListItem).filter_by(product_id=a.product_id).first()
+    #         if not product:
+    #             raise ValueError("Product not available.")
+
+    #         total_price = product.MRP * (a.quantity)
+    #         order_date = date.today()
+    #         delivery_days = random.choice([2, 3, 4])
+    #         delivery_date = order_date + timedelta(days=delivery_days)
+
+    #         new_order = self.Order(
+    #             login_id=a.login_id,
+    #             product_id=a.product_id,
+    #             order_date=order_date,
+    #             delivery_date=delivery_date,
+    #             quantity=a.quantity,
+    #             total_price=total_price,
+    #             delivery_address=a.delivery_address
+    #         )
+
+    #         session.add(new_order)
+    #         session.commit()
+    #         return {"message": "Order placed successfully", "order_id": new_order.order_id}
+    #     except Exception as e:
+    #         print(e)
+    #     finally:
+    #         session.close()
+
+
+    def update_and_get_user_orders(self, login_id: int):
+        session = self.Session()
+        history_repo = buy_history_repo()
+
+        try:
+            today = date.today()
+
+            # Get all orders
+            user_orders = session.query(self.Order).filter_by(login_id=login_id).all()
+
+            active_orders = []
+
+            for order in user_orders:
+                if order.delivery_date < today:
+                    # Archive old orders to buy history
+                    history_repo.add_buy_history(
+                        login_id=order.login_id,
+                        product_id=order.product_id,
+                        delivared_address=order.delivery_address,
+                    )
+                    session.delete(order)
+                else:
+                    active_orders.append(order)
+
+            session.commit()
+
+            #  Reuse get_addresses_by_login to resolve full address info
+            address_repo = user_address_repo()
+            all_addresses = address_repo.get_addresses_by_login(login_id)
+
+            address_map = {addr["address_id"]: addr for addr in all_addresses}
+
+            result = []
+            for o in active_orders:
+                #  Product info
+                product = session.query(self.ListItem).filter_by(product_id=o.product_id).first()
+
+                #  Full address (with state name)
+                addr = address_map.get(o.delivery_address)
+                full_address = (
+                    f"{addr['address_part1']}, {addr['address_part2']}, "
+                    f"{addr['city']}, {addr['state']}, {addr['nation']} - {addr['pincode']}, "
+                    f"Landmark: {addr['landmark']}"
+                ) if addr else "Address Not Found"
+
+                result.append({
+                    "order_id": o.order_id,
+                    "product_id": o.product_id,
+                    "product_name": product.product_name if product else "N/A",
+                    "product_image": product.product_image if product else "",
+                    "order_date": str(o.order_date),
+                    "delivery_date": str(o.delivery_date),
+                    "quantity": o.quantity,
+                    "total_price": o.total_price,
+                    "delivery_address": full_address,
+                })
+
+            return result
+
+        except Exception as e:
+            print("❌ Error fetching/updating orders:", e)
+            traceback.print_exc()
+            return []
+
+        finally:
+            session.close()
+
+
+
+    def order_item(self, a: OrderRequest):
         session = self.Session()
         try:
             product = session.query(self.ListItem).filter_by(product_id=a.product_id).first()
             if not product:
                 raise ValueError("Product not available.")
 
-            total_price = product.MRP * (a.quantity)
+            total_price = product.MRP * a.quantity
             order_date = date.today()
             delivery_days = random.choice([2, 3, 4])
             delivery_date = order_date + timedelta(days=delivery_days)
@@ -104,47 +208,40 @@ class order_repo(db_class):
             session.add(new_order)
             session.commit()
             return {"message": "Order placed successfully", "order_id": new_order.order_id}
+
         except Exception as e:
-            print(e)
+            print("❌ Error placing order:", e)
+            traceback.print_exc()  # 🔥 This will show the full stack trace
+            raise e  # Optional: Let it crash FastAPI so you see exact cause
         finally:
             session.close()
-
-
-    def update_and_get_user_orders(self, login_id: int):
+    def order_all_items(self, login_id: int, delivery_address: int, items: List[dict]):
+        for item in items:
+            req = OrderRequest(
+                login_id=login_id,
+                product_id=item["product_id"],
+                quantity=item["quantity"],
+                delivery_address=delivery_address
+            )
+            self.order_item(req)
+        return {"message": "All orders placed successfully."}
+    
+    def cancel_order(self, order_id: int):
         session = self.Session()
-        history_repo=buy_history_repo()
-
         try:
-            today = date.today()
+            order = session.query(self.Order).filter_by(order_id=order_id).first()
+            if not order:
+                return {"error": "Order not found"}, 404
 
-            user_orders = session.query(self.Order).filter_by(login_id=login_id).all()
-            active_orders = []
-
-            for order in user_orders:
-                if order.delivery_date < today:
-                    history_repo.add_buy_history(
-                        login_id=order.login_id,
-                        product_id=order.product_id,
-                        delivared_address=order.delivery_address  
-                    )
-                    session.delete(order)
-                else:
-                    active_orders.append(order)
-
+            session.delete(order)
             session.commit()
-
-            return [{
-                "order_id": o.order_id,
-                "product_id": o.product_id,
-                "order_date": o.order_date,
-                "delivery_date": o.delivery_date,
-                "quantity": o.quantity,
-                "total_price": o.total_price,
-                "delivery_address": o.delivery_address
-            } for o in active_orders]
+            return {"message": "Order canceled successfully."}, 200
 
         except Exception as e:
-            print(e)
-            return []
+            print("❌ Error canceling order:", e)
+            traceback.print_exc()
+            return {"error": "Internal server error"}, 500
+
         finally:
             session.close()
+

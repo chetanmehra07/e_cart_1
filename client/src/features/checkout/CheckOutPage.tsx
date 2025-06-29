@@ -13,11 +13,17 @@ import {
   Alert,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import { useAppSelector } from "../../app/store/store";
+import { useClearCartMutation } from "../../app/api/apiSlice";
+
+type CartItem = {
+  product_id: number;
+  item_count: number;
+};
 
 type UserAddress = {
   address_id: number;
@@ -34,6 +40,8 @@ type UserAddress = {
 export default function CheckoutPage() {
   const { user } = useAppSelector((state) => state.account);
   const loginid = user?.loginid;
+  const navigate = useNavigate();
+  const [clearCart] = useClearCartMutation();
 
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
@@ -66,44 +74,70 @@ export default function CheckoutPage() {
     fetchAddresses();
   }, [loginid]);
 
-  const handlePlaceOrder = () => {
-    if (!selectedAddressId) {
+  const handlePlaceOrder = async () => {
+    if (!selectedAddressId || !loginid) {
       setSnackMessage("⚠️ Please select a delivery address.");
       setSnackOpen(true);
       return;
     }
 
-    // Get full address object
-    const selectedAddress = addresses.find(
-      (addr) => addr.address_id.toString() === selectedAddressId
-    );
+    try {
+      const cartRes = await fetch(
+        `http://localhost:8000/cart?loginid=${loginid}`
+      );
+      const cartItems: CartItem[] = await cartRes.json();
 
-    if (!selectedAddress) {
-      setSnackMessage("⚠️ Selected address not found.");
+      if (!cartItems || cartItems.length === 0) {
+        setSnackMessage("🛒 Your cart is empty.");
+        setSnackOpen(true);
+        return;
+      }
+
+      // ✅ Construct the complete payload
+      const orderPayload = {
+        login_id: loginid,
+        delivery_address: parseInt(selectedAddressId),
+        payment_method: paymentMethod,
+        items: cartItems.map((item) => ({
+          product_id: item.product_id,
+          quantity: item.item_count,
+        })),
+      };
+
+      // ✅ Send all orders in one request
+      await fetch("http://localhost:8000/order/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload),
+      });
+      await fetch(`http://localhost:8000/cart/clear?loginid=${loginid}`, {
+        method: "DELETE",
+      });
+
+      await clearCart(loginid);
+
+      setSnackMessage(
+        <>
+          <Typography fontWeight="bold">
+            ✅ Order placed successfully!
+          </Typography>
+          <Typography>
+            💳 <strong>Payment:</strong> {paymentMethod.toUpperCase()}
+          </Typography>
+          <Typography>
+            📦 <strong>Delivery Address ID:</strong> {selectedAddressId}
+          </Typography>
+        </>
+      );
       setSnackOpen(true);
-      return;
+    } catch (error) {
+      console.error("Order placement failed:", error);
+      setSnackMessage("❌ Failed to place order. Please try again.");
+      setSnackOpen(true);
     }
-
-    const fullAddress = `${selectedAddress.address_part1}, ${
-      selectedAddress.address_part2
-    }, ${selectedAddress.city}, ${selectedAddress.state}, ${
-      selectedAddress.nation
-    } - ${selectedAddress.pincode}${
-      selectedAddress.landmark ? ` | Landmark: ${selectedAddress.landmark}` : ""
-    }`;
-
-    setSnackMessage(
-      <>
-        <Typography fontWeight="bold">✅ Order placed!</Typography>
-        <Typography>
-          💳 <strong>Payment:</strong> {paymentMethod.toUpperCase()}
-        </Typography>
-        <Typography>
-          📦 <strong>Delivery Address:</strong> {fullAddress}
-        </Typography>
-      </>
-    );
-    setSnackOpen(true);
+    setTimeout(() => {
+      navigate("/orders");
+    }, 1000);
   };
 
   return (

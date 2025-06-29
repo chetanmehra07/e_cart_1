@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
 export type CartItem = {
   cart_id: number;
   product_id: number;
@@ -13,7 +14,7 @@ export type CartItem = {
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000" }),
-  tagTypes: ["Cart"], // 👈 helps auto-refetch
+  tagTypes: ["Cart"],
   endpoints: (builder) => ({
     fetchBasket: builder.query<CartItem[], number>({
       query: (loginid) => `/cart?loginid=${loginid}`,
@@ -45,6 +46,15 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["Cart"],
     }),
+
+    // ✅ NEW: Clear all cart items for a user
+    clearCart: builder.mutation<void, number>({
+      query: (loginid) => ({
+        url: `/cart/clear?loginid=${loginid}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Cart"],
+    }),
   }),
 });
 
@@ -52,4 +62,5 @@ export const {
   useFetchBasketQuery,
   useUpdateCartItemMutation,
   useDeleteCartItemMutation,
+  useClearCartMutation, // ✅ Don't forget to export it
 } = apiSlice;
