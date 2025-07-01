@@ -13,6 +13,7 @@ import CheckoutPage from "../../features/checkout/CheckOutPage";
 import AddressPage from "../../features/address/AddressPage";
 import AddAddressPage from "../../features/address/AddAddressPage";
 import OrderPage from "../../features/orders/OrdersPage";
+import BuyHistoryPage from "../../features/buyhistory/BuyHistory";
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
       { path: "/address", element: <AddressPage /> },
       { path: "/add-address", element: <AddAddressPage /> },
       { path: "/orders", element: <OrderPage /> },
+      { path: "/buyhistory", element: <BuyHistoryPage /> },
     ],
   },
 ]);

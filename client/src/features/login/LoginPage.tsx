@@ -6,11 +6,14 @@ import {
   Typography,
   Alert,
   Snackbar,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { setUser } from "../account/accountSlice";
 import { useAppDispatch } from "../../app/store/store";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export default function LoginPage() {
   const [phoneNo, setPhoneNo] = useState("");
@@ -18,6 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [snackSuccess, setSnackSuccess] = useState(false);
   const [userName, setUserName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -91,11 +95,24 @@ export default function LoginPage() {
 
         <TextField
           label="Password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           fullWidth
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  edge="end"
+                  sx={{ padding: "20px" }}
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
           sx={{
             "& label.Mui-focused": { color: "secondary.main" },
             "& .MuiOutlinedInput-root": {

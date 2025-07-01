@@ -211,7 +211,7 @@ class order_repo(db_class):
 
         except Exception as e:
             print("❌ Error placing order:", e)
-            traceback.print_exc()  # 🔥 This will show the full stack trace
+            traceback.print_exc()  #  This will show the full stack trace
             raise e  # Optional: Let it crash FastAPI so you see exact cause
         finally:
             session.close()

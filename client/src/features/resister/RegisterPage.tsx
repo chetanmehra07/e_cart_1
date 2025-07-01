@@ -10,10 +10,13 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  type SelectChangeEvent,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import type { SelectChangeEvent } from "@mui/material";
 
 type RegisterFormData = {
   UserName: string;
@@ -38,9 +41,27 @@ export default function RegisterPage() {
     gender: "",
   });
 
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+
+  const isValidEmail = (email: string) => /^[^\s@]+@gmail\.com$/.test(email);
+  const isValidPhone = (phone: string) => /^[0-9]{10}$/.test(phone);
+
+  const getPasswordStrength = (password: string) => {
+    if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=]).{8,}$/.test(password))
+      return "Strong";
+    if (/^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(password)) return "Medium";
+    if (password.length < 6) return "Weak";
+    return "Weak";
+  };
+
+  const passwordStrength = getPasswordStrength(formData.password);
+  const passwordsMatch =
+    formData.password.length > 0 && formData.password === confirmPassword;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -48,39 +69,33 @@ export default function RegisterPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleGenderChange = (e: SelectChangeEvent) => {
+  const handleGenderChange = (e: SelectChangeEvent<string>) => {
     setFormData({ ...formData, gender: e.target.value });
-  };
-
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@gmail\.com$/.test(email);
-  };
-
-  const isValidPhone = (phone: string) => {
-    return /^[0-9]{10}$/.test(phone);
   };
 
   const handleSubmit = async () => {
     setError("");
 
-    // 1. Check empty fields
     const isEmpty = Object.entries(formData).some(
       ([, value]) => value.trim() === ""
     );
-    if (isEmpty) {
+    if (isEmpty || confirmPassword.trim() === "") {
       setError("All fields are required.");
       return;
     }
 
-    // 2. Validate email
     if (!isValidEmail(formData.emailaddress)) {
       setError("Email must be a valid @gmail.com address.");
       return;
     }
 
-    // 3. Validate phone number
     if (!isValidPhone(formData.phoneNo)) {
       setError("Phone number must be exactly 10 digits.");
+      return;
+    }
+
+    if (!passwordsMatch) {
+      setError("Passwords do not match.");
       return;
     }
 
@@ -125,65 +140,161 @@ export default function RegisterPage() {
         )}
 
         <Grid container spacing={2}>
-          {[
-            { name: "UserName", label: "Username", fullWidth: true },
-            { name: "first_name", label: "First Name" },
-            { name: "last_name", label: "Last Name" },
-            { name: "emailaddress", label: "Email Address", type: "email" },
-            { name: "phoneNo", label: "Phone Number", type: "tel" },
-            { name: "password", label: "Password", type: "password" },
-            { name: "DateOfBirth", label: "Date of Birth", type: "date" },
-          ].map(({ name, label, type = "text", fullWidth }) => (
-            <Grid item xs={fullWidth ? 12 : 6} key={name}>
-              <TextField
-                name={name}
-                label={label}
-                type={type}
-                fullWidth
-                required
-                value={formData[name as keyof RegisterFormData]}
-                onChange={handleChange}
-                InputLabelProps={type === "date" ? { shrink: true } : undefined}
-                sx={{
-                  "& label.Mui-focused": {
-                    color: "secondary.main",
-                    borderWidth: "2px",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderWidth: "2px",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "secondary.main",
-                      borderWidth: "2px",
-                    },
-                  },
-                }}
-              />
-            </Grid>
-          ))}
-
-          {/* Gender Dropdown */}
+          {/* Username */}
           <Grid item xs={12}>
-            <FormControl
+            <TextField
+              label="Username"
+              name="UserName"
               fullWidth
               required
-              sx={{
-                "& label.Mui-focused": {
-                  color: "secondary.main",
-                  borderWidth: "2px", // Purple label on focus
-                },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderWidth: "2px",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "secondary.main",
-                    borderWidth: "2px", // Purple border on focus
-                  },
-                },
+              value={formData.UserName}
+              onChange={handleChange}
+              sx={textFieldStyles}
+            />
+          </Grid>
+
+          {/* Set Password */}
+          <Grid item xs={12}>
+            <TextField
+              label="Set Password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              fullWidth
+              required
+              value={formData.password}
+              onChange={handleChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      edge="end"
+                      sx={{ p: "4px", mr: "6px" }}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               }}
-            >
+              sx={textFieldStyles}
+            />
+            {formData.password.length > 0 && (
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  fontSize: "0.8rem",
+                  borderRadius: 1,
+                  color:
+                    passwordStrength === "Weak"
+                      ? "#d32f2f"
+                      : passwordStrength === "Medium"
+                      ? "#f57c00"
+                      : "#2e7d32",
+                }}
+              >
+                Password Strength: {passwordStrength}
+              </Typography>
+            )}
+          </Grid>
+
+          {/* Confirm Password */}
+          <Grid item xs={12}>
+            <TextField
+              label="Re-enter Password"
+              type={showConfirmPassword ? "text" : "password"}
+              fullWidth
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              error={confirmPassword.length > 0 && !passwordsMatch}
+              helperText={
+                confirmPassword.length > 0 && !passwordsMatch
+                  ? "Passwords do not match"
+                  : ""
+              }
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      edge="end"
+                      sx={{ p: "4px", mr: "6px" }}
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={textFieldStyles}
+            />
+          </Grid>
+
+          {/* First Name / Last Name */}
+          <Grid item xs={6}>
+            <TextField
+              label="First Name"
+              name="first_name"
+              fullWidth
+              required
+              value={formData.first_name}
+              onChange={handleChange}
+              sx={textFieldStyles}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Last Name"
+              name="last_name"
+              fullWidth
+              required
+              value={formData.last_name}
+              onChange={handleChange}
+              sx={textFieldStyles}
+            />
+          </Grid>
+
+          {/* Email / Phone */}
+          <Grid item xs={6}>
+            <TextField
+              label="Email Address"
+              name="emailaddress"
+              type="email"
+              fullWidth
+              required
+              value={formData.emailaddress}
+              onChange={handleChange}
+              sx={textFieldStyles}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Phone Number"
+              name="phoneNo"
+              type="tel"
+              fullWidth
+              required
+              value={formData.phoneNo}
+              onChange={handleChange}
+              sx={textFieldStyles}
+            />
+          </Grid>
+
+          {/* Date of Birth / Gender side by side */}
+          <Grid item xs={6}>
+            <TextField
+              label="Date of Birth"
+              name="DateOfBirth"
+              type="date"
+              fullWidth
+              required
+              InputLabelProps={{ shrink: true }}
+              value={formData.DateOfBirth}
+              onChange={handleChange}
+              sx={textFieldStyles}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl fullWidth required sx={textFieldStyles}>
               <InputLabel id="gender-label">Gender</InputLabel>
               <Select
                 labelId="gender-label"
@@ -207,18 +318,18 @@ export default function RegisterPage() {
               variant="outlined"
               color="secondary"
               fullWidth
-              onClick={() => navigate("/address")} // Replace with your actual route
+              onClick={() => navigate("/address")}
             >
               Add Address
             </Button>
           </Grid>
-
           <Grid item xs={6}>
             <Button
               variant="contained"
               color="secondary"
               fullWidth
               onClick={handleSubmit}
+              disabled={!passwordsMatch}
             >
               Register
             </Button>
@@ -228,3 +339,18 @@ export default function RegisterPage() {
     </Container>
   );
 }
+
+const textFieldStyles = {
+  "& label.Mui-focused": {
+    color: "secondary.main",
+  },
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderWidth: "2px",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "secondary.main",
+      borderWidth: "2px",
+    },
+  },
+};

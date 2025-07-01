@@ -109,6 +109,7 @@ export default function ProductDetails() {
         </TableContainer>
 
         {/* Policies */}
+        {/* Policies */}
         <Box mt={2}>
           <Typography
             variant="h5"
@@ -118,28 +119,39 @@ export default function ProductDetails() {
           >
             Applicable Policies
           </Typography>
-          {product.applicable_policies?.map((policy, index) => (
-            <Box key={index} mb={2} ml={1.5}>
-              <Box display="flex" alignItems="center">
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    bgcolor: "secondary.main",
-                    borderRadius: "50%",
-                    mr: 1,
-                    flexShrink: 0,
-                  }}
-                />
-                <Typography variant="subtitle1" fontWeight="bold">
-                  {policy.policy_name}
+
+          {product.applicable_policies?.length ? (
+            product.applicable_policies.map((policy, index) => (
+              <Box key={index} mb={2} ml={1.5}>
+                <Box display="flex" alignItems="center">
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      bgcolor: "secondary.main",
+                      borderRadius: "50%",
+                      mr: 1,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    {policy.policy_name}
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ ml: 3 }}
+                >
+                  {policy.policy_description}
                 </Typography>
               </Box>
-              <Typography variant="body2" color="text.secondary" sx={{ ml: 3 }}>
-                {policy.policy_description}
-              </Typography>
-            </Box>
-          ))}
+            ))
+          ) : (
+            <Typography variant="body2" color="text.secondary" ml={2}>
+              No applicable policies.
+            </Typography>
+          )}
         </Box>
 
         {/* Add to Basket */}
@@ -160,9 +172,18 @@ export default function ProductDetails() {
                 },
               }}
               fullWidth
-              inputProps={{ min: 1 }}
+              inputProps={{
+                min: 1,
+                max: product.stock_avl,
+              }}
               value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, +e.target.value))}
+              onChange={(e) => {
+                const val = Math.max(
+                  1,
+                  Math.min(+e.target.value, product.stock_avl)
+                );
+                setQuantity(val);
+              }}
             />
           </Grid2>
           <Grid2 size={6}>

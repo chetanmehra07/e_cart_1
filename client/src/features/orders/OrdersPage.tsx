@@ -71,16 +71,35 @@ export default function OrderPage() {
 
   return (
     <Box p={{ xs: 2, md: 4 }}>
-      <Typography
-        variant="h3"
-        fontWeight="bold"
-        textAlign="center"
+      {/* Title + Buy History Button */}
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
         mb={4}
         mt={-4}
-        color="secondary"
       >
-        Your Orders
-      </Typography>
+        <Typography variant="h3" fontWeight="bold" color="secondary">
+          Your Orders
+        </Typography>
+
+        <Button
+          variant="contained"
+          component={Link}
+          to="/buyhistory"
+          sx={{
+            fontWeight: "bold",
+            fontSize: "1rem",
+            borderRadius: 2,
+            padding: "8px 16px",
+            px: 3,
+            color: "white ",
+            backgroundColor: "secondary.main",
+          }}
+        >
+          Buy History
+        </Button>
+      </Box>
 
       {loading ? (
         <Box textAlign="center">
@@ -104,10 +123,10 @@ export default function OrderPage() {
                   background: "rgba(135, 128, 138, 0.37)",
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
-                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)",
+                  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.25)",
                 }}
               >
-                {/* Cancel Button Top Right */}
+                {/* Cancel Button */}
                 <Button
                   variant="contained"
                   size="large"
@@ -119,12 +138,11 @@ export default function OrderPage() {
                     top: 20,
                     right: 25,
                     fontWeight: "bold",
-                    fontSize: "1.rem",
+                    fontSize: "1rem",
                     borderRadius: 1.4,
-                    minWidth: "auto",
                     px: 3.5,
                     "&:hover": {
-                      backgroundColor: "rgba(251, 244, 255, 0.91)",
+                      backgroundColor: "rgb(250, 250, 250)",
                     },
                   }}
                 >
@@ -173,16 +191,48 @@ export default function OrderPage() {
                   <Typography variant="body2">
                     <strong>Delivery:</strong> {order.delivery_date}
                   </Typography>
-                  <Typography
-                    variant="body1"
-                    sx={{ color: "secondary.main", fontWeight: "bold" }}
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
                   >
-                    ₹{order.total_price.toFixed(2)}
-                  </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ color: "secondary.main", fontWeight: "bold" }}
+                    >
+                      ₹{order.total_price.toFixed(2)}
+                    </Typography>
+
+                    {/* Days Left */}
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontStyle: "italic",
+                        color: "text.secondary",
+                        fontWeight: "bold",
+                        fontSize: "0.9rem",
+                      }}
+                    >
+                      {(() => {
+                        const today = new Date();
+                        const deliveryDate = new Date(order.delivery_date);
+                        const daysLeft = Math.ceil(
+                          (deliveryDate.getTime() - today.getTime()) /
+                            (1000 * 60 * 60 * 24)
+                        );
+                        return daysLeft > 0
+                          ? `${daysLeft} day${
+                              daysLeft > 1 ? "s" : ""
+                            } left in delivery`
+                          : daysLeft === 0
+                          ? "Delivering today"
+                          : "Delivered";
+                      })()}
+                    </Typography>
+                  </Box>
 
                   <Divider sx={{ my: 1.5 }} />
 
-                  {/* 🏠 Delivery Address */}
                   <Typography fontSize="0.9rem" fontWeight="bold">
                     Delivery Address:
                   </Typography>
@@ -200,7 +250,7 @@ export default function OrderPage() {
         </Grid>
       )}
 
-      {/* ✅ Snackbar for Cancel Confirmation */}
+      {/* Snackbar */}
       <Snackbar
         open={snackOpen}
         autoHideDuration={5000}

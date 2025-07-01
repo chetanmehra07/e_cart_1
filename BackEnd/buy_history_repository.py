@@ -1,3 +1,4 @@
+import traceback
 from base_db_class import db_class
 from pydantic import BaseModel
 from sqlalchemy.orm import declarative_base
@@ -116,24 +117,53 @@ class buy_history_repo(db_class):
     def get_buy_history(self, login_id):
         session = self.Session()
         try:
+            # Get all buy history records
             history_all = (
                 session.query(self.BuyHistory).filter_by(login_id=login_id).all()
             )
-            if history_all:
-                history_list = []
-                for history in history_all:
-                    history_dict = {
-                        "buy_id": history.buy_id,
-                        "login_id": history.login_id,
-                        "product_id": history.product_id,
-                        "buy_date": history.buy_date,
-                        "delivared_address": history.delivared_address,
-                    }
-                    history_list.append(history_dict)
-                return history_list
-            else:
-                print("no item in buy history")
+
+            if not history_all:
+                print("No items in buy history")
+                return []
+
+            # Prepare address and product info
+            address_repo = user_address_repo()
+            all_addresses = address_repo.get_addresses_by_login(login_id)
+            address_map = {addr["address_id"]: addr for addr in all_addresses}
+
+            history_list = []
+
+            for history in history_all:
+                # Fetch product details
+                product = session.query(self.ListItem).filter_by(product_id=history.product_id).first()
+
+                # Resolve full address
+                addr = address_map.get(history.delivared_address)
+                full_address = (
+                    f"{addr['address_part1']}, {addr['address_part2']}, "
+                    f"{addr['city']}, {addr['state']}, {addr['nation']} - {addr['pincode']}, "
+                    f"Landmark: {addr['landmark']}"
+                ) if addr else "Address Not Found"
+
+                # Construct detailed dictionary
+                history_dict = {
+                    "buy_id": history.buy_id,
+                    "buy_date": str(history.buy_date),
+                    "product_id": history.product_id,
+                    "product_name": product.product_name if product else "Unknown Product",
+                    "product_image": product.product_image if product else "",
+                    "delivery_address": full_address,
+                }
+
+                history_list.append(history_dict)
+
+            return history_list
+
         except Exception as e:
-            print(e)
+            print("❌ Error fetching buy history:", e)
+            traceback.print_exc()
+            return []
+
         finally:
             session.close()
+
