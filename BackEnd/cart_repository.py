@@ -112,7 +112,8 @@ class cart_repo(db_class):
                     "product_name": product.product_name,
                     "MRP": product.MRP,
                     "product_image": product.product_image,
-                    "discount": product.discount
+                    "discount": product.discount,
+                    "stock_avl": product.stock_avl
                 })
 
             return cart_list

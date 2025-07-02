@@ -36,8 +36,26 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackError, setSnackError] = useState(false);
+  const [snackMaxReached, setSnackMaxReached] = useState(false);
 
   if (!product || isLoading) return <div>Loading...</div>;
+
+  let existingCount = 0;
+
+  if (user) {
+    const existingItem = basket?.find(
+      (item) => item.product_id === product.product_id
+    );
+    existingCount = existingItem?.item_count ?? 0;
+  } else {
+    const guestCart: CartItem[] = getGuestCart();
+    const guestItem = guestCart.find(
+      (item) => item.product_id === product.product_id
+    );
+    existingCount = guestItem?.item_count ?? 0;
+  }
+
+  const maxAllowedQuantity = product.stock_avl - existingCount;
 
   const ProductDetails = [
     { label: "Name", value: product.product_name },
@@ -53,33 +71,38 @@ export default function ProductDetails() {
 
   const handleAddToCart = async () => {
     try {
-      if (user) {
-        // ✅ Logged-in user → Update backend
-        const existingItem = basket?.find(
-          (item) => item.product_id === product.product_id
-        );
-        const updatedCount = existingItem
-          ? existingItem.item_count + quantity
-          : quantity;
+      const totalDesired = existingCount + quantity;
 
+      if (totalDesired > product.stock_avl) {
+        setSnackMaxReached(true);
+        return;
+      }
+
+      if (user) {
         await updateCartItem({
           loginid,
           product_id: product.product_id,
-          item_count: updatedCount,
+          item_count: totalDesired,
           added_date: new Date().toISOString().split("T")[0],
         });
       } else {
-        // ✅ Guest user → Update localStorage with full CartItem structure
         const guestCart: CartItem[] = getGuestCart();
         const existingIndex = guestCart.findIndex(
           (item) => item.product_id === product.product_id
         );
 
         if (existingIndex !== -1) {
+          if (
+            guestCart[existingIndex].item_count + quantity >
+            product.stock_avl
+          ) {
+            setSnackMaxReached(true);
+            return;
+          }
           guestCart[existingIndex].item_count += quantity;
         } else {
           guestCart.push({
-            cart_id: Date.now(), // dummy unique ID
+            cart_id: Date.now(),
             product_id: product.product_id,
             item_count: quantity,
             added_date: new Date().toISOString().split("T")[0],
@@ -87,11 +110,12 @@ export default function ProductDetails() {
             MRP: product.MRP,
             product_image: product.product_image,
             discount: product.discount,
+            stock_avl: product.stock_avl,
           });
         }
 
         saveGuestCart(guestCart);
-        window.dispatchEvent(new Event("storage")); // 🔁 Update cart icon
+        window.dispatchEvent(new Event("storage"));
       }
 
       setSnackOpen(true);
@@ -138,8 +162,6 @@ export default function ProductDetails() {
           </Table>
         </TableContainer>
 
-        {/* Policies */}
-        {/* Policies */}
         <Box mt={2}>
           <Typography
             variant="h5"
@@ -184,7 +206,6 @@ export default function ProductDetails() {
           )}
         </Box>
 
-        {/* Add to Basket */}
         <Grid2 container spacing={2} marginTop={3}>
           {product.stock_avl > 0 ? (
             <>
@@ -206,13 +227,13 @@ export default function ProductDetails() {
                   fullWidth
                   inputProps={{
                     min: 1,
-                    max: product.stock_avl,
+                    max: maxAllowedQuantity,
                   }}
                   value={quantity}
                   onChange={(e) => {
                     const val = Math.max(
                       1,
-                      Math.min(+e.target.value, product.stock_avl)
+                      Math.min(+e.target.value, maxAllowedQuantity)
                     );
                     setQuantity(val);
                   }}
@@ -263,7 +284,6 @@ export default function ProductDetails() {
         </Grid2>
       </Grid2>
 
-      {/* Snackbars */}
       <Snackbar
         open={snackOpen}
         autoHideDuration={3000}
@@ -285,6 +305,7 @@ export default function ProductDetails() {
           Added to cart successfully!
         </Alert>
       </Snackbar>
+
       <Snackbar
         open={snackError}
         autoHideDuration={3000}
@@ -297,6 +318,23 @@ export default function ProductDetails() {
           variant="filled"
         >
           Failed to add item to cart!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={snackMaxReached}
+        autoHideDuration={4000}
+        onClose={() => setSnackMaxReached(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackMaxReached(false)}
+          severity="warning"
+          variant="filled"
+          sx={{ fontSize: "1rem", backgroundColor: "secondary.main" }}
+        >
+          Maximum quantity in stock reached. You already have {existingCount}{" "}
+          item{existingCount > 1 ? "s" : ""} in your cart.
         </Alert>
       </Snackbar>
     </Grid2>

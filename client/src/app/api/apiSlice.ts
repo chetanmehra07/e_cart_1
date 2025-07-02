@@ -10,6 +10,7 @@ export type CartItem = {
   MRP: number;
   product_image: string;
   discount: number;
+  stock_avl: number;
 };
 
 export const apiSlice = createApi({

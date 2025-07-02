@@ -253,15 +253,20 @@ export default function OrderPage() {
       {/* Snackbar */}
       <Snackbar
         open={snackOpen}
-        autoHideDuration={5000}
+        autoHideDuration={3000}
         onClose={() => setSnackOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert
           severity="warning"
           variant="filled"
           onClose={() => setSnackOpen(false)}
-          sx={{ fontWeight: "bold" }}
+          sx={{
+            width: "100%",
+            fontSize: "1rem",
+            py: 1,
+            borderRadius: "10px",
+          }}
         >
           Your order has been canceled. Payment will be refunded in 2 days.
         </Alert>

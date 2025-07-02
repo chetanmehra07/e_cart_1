@@ -33,15 +33,25 @@ export default function ProductCard({ product }: Props) {
   const [updateCartItem] = useUpdateCartItemMutation();
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackError, setSnackError] = useState(false);
+  const [snackStockLimit, setSnackStockLimit] = useState(false);
 
   const handleAddToCart = async () => {
+    if (product.stock_avl === 0) {
+      setSnackStockLimit(true);
+      return;
+    }
+
     try {
       if (isLoggedIn) {
-        // ✅ Logged in user: Update backend cart
         const existingItem = basket?.find(
           (item) => item.product_id === product.product_id
         );
         const updatedCount = existingItem ? existingItem.item_count + 1 : 1;
+
+        if (updatedCount > product.stock_avl) {
+          setSnackStockLimit(true);
+          return;
+        }
 
         await updateCartItem({
           loginid: userLoginId!,
@@ -50,17 +60,23 @@ export default function ProductCard({ product }: Props) {
           added_date: new Date().toISOString().split("T")[0],
         });
       } else {
-        // 🟡 Guest user: Use localStorage
         const guestCart: CartItem[] = getGuestCart();
         const existingItem = guestCart.find(
           (item) => item.product_id === product.product_id
         );
 
+        const updatedCount = existingItem ? existingItem.item_count + 1 : 1;
+
+        if (updatedCount > product.stock_avl) {
+          setSnackStockLimit(true);
+          return;
+        }
+
         if (existingItem) {
-          existingItem.item_count += 1;
+          existingItem.item_count = updatedCount;
         } else {
           guestCart.push({
-            cart_id: Date.now(), // dummy unique ID
+            cart_id: Date.now(),
             product_id: product.product_id,
             item_count: 1,
             added_date: new Date().toISOString().split("T")[0],
@@ -68,6 +84,7 @@ export default function ProductCard({ product }: Props) {
             MRP: product.MRP,
             product_image: product.product_image,
             discount: product.discount,
+            stock_avl: product.stock_avl,
           });
         }
 
@@ -120,20 +137,34 @@ export default function ProductCard({ product }: Props) {
           </Typography>
         </CardContent>
         <CardActions sx={{ justifyContent: "space-between" }}>
-          <Button
-            variant="contained"
-            onClick={handleAddToCart}
-            sx={{
-              backgroundColor: "rgba(39, 165, 194, 0.67)",
-              color: "whitesmoke",
-              fontWeight: 600,
-              "&:hover": {
-                backgroundColor: "rgb(16, 177, 213)",
-              },
-            }}
-          >
-            Add to cart
-          </Button>
+          {product.stock_avl > 0 ? (
+            <Button
+              variant="contained"
+              onClick={handleAddToCart}
+              sx={{
+                backgroundColor: "rgba(39, 165, 194, 0.67)",
+                color: "whitesmoke",
+                fontWeight: 600,
+                "&:hover": {
+                  backgroundColor: "rgb(16, 177, 213)",
+                },
+              }}
+            >
+              Add to cart
+            </Button>
+          ) : (
+            <Typography
+              sx={{
+                px: 1.5,
+                color: "secondary.main",
+                fontWeight: 600,
+                fontSize: "1.15rem",
+              }}
+            >
+              Out of stock
+            </Typography>
+          )}
+
           <Button
             component={Link}
             to={`/catalog/${product.product_id}`}
@@ -194,6 +225,27 @@ export default function ProductCard({ product }: Props) {
           }}
         >
           Failed to add item to cart. Please try again!
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={snackStockLimit}
+        autoHideDuration={2000}
+        onClose={() => setSnackStockLimit(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackStockLimit(false)}
+          severity="warning"
+          variant="filled"
+          sx={{
+            width: "100%",
+            fontSize: "1rem",
+            py: 1,
+            borderRadius: "10px",
+            backgroundColor: "secondary.main",
+          }}
+        >
+          maximum quantity in stock is reached
         </Alert>
       </Snackbar>
     </>
