@@ -1,3 +1,4 @@
+// apiSlice.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export type CartItem = {
@@ -46,8 +47,6 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["Cart"],
     }),
-
-    // ✅ NEW: Clear all cart items for a user
     clearCart: builder.mutation<void, number>({
       query: (loginid) => ({
         url: `/cart/clear?loginid=${loginid}`,
@@ -60,7 +59,8 @@ export const apiSlice = createApi({
 
 export const {
   useFetchBasketQuery,
+  useLazyFetchBasketQuery, // ✅ ADD THIS
   useUpdateCartItemMutation,
   useDeleteCartItemMutation,
-  useClearCartMutation, // ✅ Don't forget to export it
+  useClearCartMutation,
 } = apiSlice;

@@ -15,6 +15,13 @@ import { setUser } from "../account/accountSlice";
 import { useAppDispatch } from "../../app/store/store";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
+import type { CartItem } from "../../app/api/apiSlice";
+import { clearGuestCart, getGuestCart } from "../basket/localCart";
+import {
+  useLazyFetchBasketQuery,
+  useUpdateCartItemMutation,
+} from "../../app/api/apiSlice";
+
 export default function LoginPage() {
   const [phoneNo, setPhoneNo] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +32,32 @@ export default function LoginPage() {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const [updateCartItem] = useUpdateCartItemMutation();
+  const [triggerFetchBasket] = useLazyFetchBasketQuery(); // ✅ Using lazy query
+
+  // ✅ Merge guest cart to backend
+  const mergeGuestCartToBackend = async (loginid: number) => {
+    const guestCart: CartItem[] = getGuestCart();
+    if (!guestCart.length) return;
+
+    try {
+      await Promise.all(
+        guestCart.map((item) =>
+          updateCartItem({
+            loginid,
+            product_id: item.product_id,
+            item_count: item.item_count,
+            added_date: new Date().toISOString().split("T")[0],
+          })
+        )
+      );
+      clearGuestCart(); // ✅ Clear guest cart after successful sync
+      console.log("✅ Guest cart merged to backend");
+    } catch (err) {
+      console.error("❌ Failed to merge guest cart:", err);
+    }
+  };
 
   const handleLogin = async () => {
     setError("");
@@ -50,6 +83,9 @@ export default function LoginPage() {
       }
 
       dispatch(setUser({ loginid: data.loginid, UserName: data.UserName }));
+      await mergeGuestCartToBackend(data.loginid); // ✅ Merge guest cart
+      await triggerFetchBasket(data.loginid); // ✅ Refresh basket after merging
+
       setUserName(data.UserName);
       setSnackSuccess(true);
 

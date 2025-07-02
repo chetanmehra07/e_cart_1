@@ -14,6 +14,8 @@ import { DarkMode, LightMode, ShoppingCart } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { setDarkMode } from "./uiSlice";
 import { useFetchBasketQuery } from "../api/apiSlice";
+import { getGuestCart } from "../../features/basket/localCart";
+import { useEffect, useState } from "react";
 
 const midLinks = [
   { title: "catalog", path: "/catalog" },
@@ -42,10 +44,33 @@ export default function NavBar() {
   const dispatch = useAppDispatch();
   const { darkMode, isLoading } = useAppSelector((state) => state.ui);
   const { user } = useAppSelector((state) => state.account);
-  const { data: basketItems } = useFetchBasketQuery(user?.loginid ?? 1);
+  const { data: basketItems } = useFetchBasketQuery(user ? user.loginid : 0, {
+    skip: !user,
+  });
+  const [guestCount, setGuestCount] = useState(
+    getGuestCart().reduce((total, item) => total + item.item_count, 0)
+  );
+  useEffect(() => {
+    const syncGuestCart = () => {
+      const newCount = getGuestCart().reduce(
+        (total, item) => total + item.item_count,
+        0
+      );
+      setGuestCount(newCount);
+    };
 
-  const itemCount =
-    basketItems?.reduce((total, item) => total + item.item_count, 0) || 0;
+    window.addEventListener("storage", syncGuestCart);
+    const interval = setInterval(syncGuestCart, 500); // Fallback polling
+
+    return () => {
+      window.removeEventListener("storage", syncGuestCart);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const itemCount = user
+    ? basketItems?.reduce((total, item) => total + item.item_count, 0) || 0
+    : guestCount;
 
   return (
     <AppBar

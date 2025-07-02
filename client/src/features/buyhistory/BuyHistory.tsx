@@ -86,6 +86,7 @@ export default function BuyHistoryPage() {
                   sx={{
                     borderRadius: 2,
                     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                    background: "rgba(135, 128, 138, 0.37)",
                     p: 1.2,
                     display: "flex",
                     alignItems: "center",

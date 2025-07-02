@@ -18,13 +18,55 @@ import {
 } from "../../app/api/apiSlice";
 import { Link, NavLink } from "react-router-dom";
 import { useAppSelector } from "../../app/store/store";
+import { getGuestCart, saveGuestCart } from "./localCart";
 
 export default function BasketPage() {
-  const { user } = useAppSelector((state) => state.account); // ✅ now it's inside
-  const loginid = user?.loginid ?? 1;
-  const { data, isLoading } = useFetchBasketQuery(loginid);
+  const { user } = useAppSelector((state) => state.account);
+  const loginid = user?.loginid;
+  const isLoggedIn = !!loginid;
+
+  const { data: backendCart, isLoading } = useFetchBasketQuery(loginid!, {
+    skip: !isLoggedIn,
+  });
+
+  const guestCart: CartItem[] = !isLoggedIn ? getGuestCart() : [];
+  const data: CartItem[] = isLoggedIn ? backendCart ?? [] : guestCart;
+
   const [updateCartItem] = useUpdateCartItemMutation();
   const [deleteCartItem] = useDeleteCartItemMutation();
+
+  const handleUpdateQuantity = (product_id: number, newCount: number) => {
+    if (newCount < 1) return;
+
+    if (isLoggedIn) {
+      updateCartItem({
+        loginid: loginid!,
+        product_id,
+        item_count: newCount,
+        added_date: new Date().toISOString().split("T")[0],
+      });
+    } else {
+      const updated = guestCart.map((item) =>
+        item.product_id === product_id
+          ? { ...item, item_count: newCount }
+          : item
+      );
+      saveGuestCart(updated);
+      window.location.reload(); // 🌀 You can replace with React state
+    }
+  };
+
+  const handleDeleteItem = (product_id: number) => {
+    if (isLoggedIn) {
+      deleteCartItem({ loginid: loginid!, productid: product_id });
+    } else {
+      const updated = guestCart.filter(
+        (item) => item.product_id !== product_id
+      );
+      saveGuestCart(updated);
+      window.location.reload(); // 🌀 You can replace with React state
+    }
+  };
 
   if (isLoading) return <Typography>Loading...</Typography>;
   if (!data || data.length === 0)
@@ -77,8 +119,8 @@ export default function BasketPage() {
     );
 
   const subtotal = calculateSubtotal(data);
-  const discount = subtotal * 0.005; // 0.1%
-  const deliveryFee = subtotal > 100 ? 0 : subtotal * 0.01; // 1% if <= 100
+  const discount = subtotal * 0.005;
+  const deliveryFee = subtotal > 100 ? 0 : subtotal * 0.01;
   const finalTotal = subtotal - discount + deliveryFee;
 
   return (
@@ -90,30 +132,27 @@ export default function BasketPage() {
 
           return (
             <Paper
-              key={item.cart_id}
+              key={item.cart_id || item.product_id}
               sx={{
                 display: "flex",
                 p: 2,
                 mb: 2,
-                backgroundColor: "gray",
-                color: "white",
-                borderRadius: 2,
                 background: "rgba(135, 128, 138, 0.37)",
                 backdropFilter: "blur(20px)",
                 WebkitBackdropFilter: "blur(20px)",
                 boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.37)",
+                borderRadius: 2,
                 alignItems: "stretch",
                 minHeight: 130,
               }}
             >
-              {/* Product Image */}
               <Link to={`/catalog/${item.product_id}`}>
                 <Box
                   component="img"
                   src={item.product_image}
                   alt={item.product_name}
                   sx={{
-                    width: 120, // square dimensions
+                    width: 120,
                     height: 120,
                     borderRadius: 2,
                     objectFit: "cover",
@@ -122,9 +161,7 @@ export default function BasketPage() {
                 />
               </Link>
 
-              {/* Product Info */}
               <Box flex={1}>
-                {/* Product Name */}
                 <Link
                   to={`/catalog/${item.product_id}`}
                   style={{ textDecoration: "none" }}
@@ -133,28 +170,21 @@ export default function BasketPage() {
                     variant="h5"
                     fontWeight="bold"
                     color="secondary"
-                    sx={{
-                      "&:hover": {
-                        color: "secondary.main",
-                      },
-                    }}
+                    sx={{ "&:hover": { color: "secondary.main" } }}
                   >
                     {item.product_name}
                   </Typography>
                 </Link>
 
-                {/* Unit × Count = Total */}
                 <Typography mt={0.5} color="text.primary">
                   ${unitPrice.toFixed(2)} × {item.item_count} ={" "}
                   <strong>${itemTotal.toFixed(2)}</strong>
                 </Typography>
 
-                {/* Discount Line */}
                 <Typography variant="caption" color="secondary" display="block">
                   ({item.discount.toFixed(0)}% OFF)
                 </Typography>
 
-                {/* Quantity Control */}
                 <Box display="flex" alignItems="center" mt={1}>
                   <IconButton
                     size="small"
@@ -162,24 +192,19 @@ export default function BasketPage() {
                       color: "secondary.main",
                       width: 40,
                       height: 32,
-                      borderRadius: 2, // Makes it square (borderRadius: 0 is sharp corners)
+                      borderRadius: 2,
                       backgroundColor: "white",
                       "&:hover": {
                         backgroundColor: "#f0f0f0",
                       },
                     }}
                     onClick={() =>
-                      item.item_count > 1 &&
-                      updateCartItem({
-                        loginid,
-                        product_id: item.product_id,
-                        item_count: item.item_count - 1,
-                        added_date: new Date().toISOString().split("T")[0],
-                      })
+                      handleUpdateQuantity(item.product_id, item.item_count - 1)
                     }
                   >
                     <Remove />
                   </IconButton>
+
                   <Typography
                     mx={1}
                     marginLeft={3}
@@ -189,6 +214,7 @@ export default function BasketPage() {
                   >
                     {item.item_count}
                   </Typography>
+
                   <IconButton
                     size="small"
                     sx={{
@@ -202,12 +228,7 @@ export default function BasketPage() {
                       },
                     }}
                     onClick={() =>
-                      updateCartItem({
-                        loginid,
-                        product_id: item.product_id,
-                        item_count: item.item_count + 1,
-                        added_date: new Date().toISOString().split("T")[0],
-                      })
+                      handleUpdateQuantity(item.product_id, item.item_count + 1)
                     }
                   >
                     <Add />
@@ -215,18 +236,14 @@ export default function BasketPage() {
                 </Box>
               </Box>
 
-              {/* Delete Button */}
               <IconButton
                 aria-label="Remove item"
-                onClick={() =>
-                  deleteCartItem({ loginid, productid: item.product_id })
-                }
+                onClick={() => handleDeleteItem(item.product_id)}
                 sx={{
                   borderRadius: 2,
-                  // 🔴 Rectangle instead of oval
-                  padding: "15px", // tight padding, change if needed
+                  padding: "15px",
                   "&:hover": {
-                    boxShadow: 2, // optional glow
+                    boxShadow: 2,
                   },
                 }}
               >
@@ -237,7 +254,6 @@ export default function BasketPage() {
         })}
       </Grid>
 
-      {/* Order Summary */}
       <Grid item xs={12} md={4}>
         <Paper
           sx={{

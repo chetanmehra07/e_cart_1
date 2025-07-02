@@ -12,10 +12,12 @@ import { Link } from "react-router-dom";
 import {
   useUpdateCartItemMutation,
   useFetchBasketQuery,
+  type CartItem,
 } from "../../app/api/apiSlice";
 import type { Product } from "../../app/models/product";
 import { useState } from "react";
 import { useAppSelector } from "../../app/store/store";
+import { getGuestCart, saveGuestCart } from "../basket/localCart";
 
 type Props = {
   product: Product;
@@ -23,10 +25,10 @@ type Props = {
 
 export default function ProductCard({ product }: Props) {
   const userLoginId = useAppSelector((state) => state.account.user?.loginid);
-  const loginid = userLoginId ?? 1; // fallback to guest (id 1) if not logged in
+  const isLoggedIn = !!userLoginId;
 
-  const { data: basket } = useFetchBasketQuery(loginid!, {
-    skip: !loginid,
+  const { data: basket } = useFetchBasketQuery(userLoginId!, {
+    skip: !isLoggedIn,
   });
   const [updateCartItem] = useUpdateCartItemMutation();
   const [snackOpen, setSnackOpen] = useState(false);
@@ -34,17 +36,43 @@ export default function ProductCard({ product }: Props) {
 
   const handleAddToCart = async () => {
     try {
-      const existingItem = basket?.find(
-        (item) => item.product_id === product.product_id
-      );
-      const updatedCount = existingItem ? existingItem.item_count + 1 : 1;
+      if (isLoggedIn) {
+        // ✅ Logged in user: Update backend cart
+        const existingItem = basket?.find(
+          (item) => item.product_id === product.product_id
+        );
+        const updatedCount = existingItem ? existingItem.item_count + 1 : 1;
 
-      await updateCartItem({
-        loginid: loginid!,
-        product_id: product.product_id,
-        item_count: updatedCount,
-        added_date: new Date().toISOString().split("T")[0],
-      });
+        await updateCartItem({
+          loginid: userLoginId!,
+          product_id: product.product_id,
+          item_count: updatedCount,
+          added_date: new Date().toISOString().split("T")[0],
+        });
+      } else {
+        // 🟡 Guest user: Use localStorage
+        const guestCart: CartItem[] = getGuestCart();
+        const existingItem = guestCart.find(
+          (item) => item.product_id === product.product_id
+        );
+
+        if (existingItem) {
+          existingItem.item_count += 1;
+        } else {
+          guestCart.push({
+            cart_id: Date.now(), // dummy unique ID
+            product_id: product.product_id,
+            item_count: 1,
+            added_date: new Date().toISOString().split("T")[0],
+            product_name: product.product_name,
+            MRP: product.MRP,
+            product_image: product.product_image,
+            discount: product.discount,
+          });
+        }
+
+        saveGuestCart(guestCart);
+      }
 
       setSnackOpen(true);
     } catch (err) {

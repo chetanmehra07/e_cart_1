@@ -19,8 +19,10 @@ import { useFetchProductDetailsQuery } from "./catalogApi";
 import {
   useUpdateCartItemMutation,
   useFetchBasketQuery,
+  type CartItem,
 } from "../../app/api/apiSlice";
 import { useAppSelector } from "../../app/store/store";
+import { getGuestCart, saveGuestCart } from "../basket/localCart";
 
 export default function ProductDetails() {
   const { user } = useAppSelector((state) => state.account);
@@ -51,19 +53,47 @@ export default function ProductDetails() {
 
   const handleAddToCart = async () => {
     try {
-      const existingItem = basket?.find(
-        (item) => item.product_id === product.product_id
-      );
-      const updatedCount = existingItem
-        ? existingItem.item_count + quantity
-        : quantity;
+      if (user) {
+        // ✅ Logged-in user → Update backend
+        const existingItem = basket?.find(
+          (item) => item.product_id === product.product_id
+        );
+        const updatedCount = existingItem
+          ? existingItem.item_count + quantity
+          : quantity;
 
-      await updateCartItem({
-        loginid,
-        product_id: product.product_id,
-        item_count: updatedCount,
-        added_date: new Date().toISOString().split("T")[0],
-      });
+        await updateCartItem({
+          loginid,
+          product_id: product.product_id,
+          item_count: updatedCount,
+          added_date: new Date().toISOString().split("T")[0],
+        });
+      } else {
+        // ✅ Guest user → Update localStorage with full CartItem structure
+        const guestCart: CartItem[] = getGuestCart();
+        const existingIndex = guestCart.findIndex(
+          (item) => item.product_id === product.product_id
+        );
+
+        if (existingIndex !== -1) {
+          guestCart[existingIndex].item_count += quantity;
+        } else {
+          guestCart.push({
+            cart_id: Date.now(), // dummy unique ID
+            product_id: product.product_id,
+            item_count: quantity,
+            added_date: new Date().toISOString().split("T")[0],
+            product_name: product.product_name,
+            MRP: product.MRP,
+            product_image: product.product_image,
+            discount: product.discount,
+          });
+        }
+
+        saveGuestCart(guestCart);
+        window.dispatchEvent(new Event("storage")); // 🔁 Update cart icon
+      }
+
       setSnackOpen(true);
     } catch (err) {
       console.error("Add to cart failed:", err);
@@ -156,48 +186,80 @@ export default function ProductDetails() {
 
         {/* Add to Basket */}
         <Grid2 container spacing={2} marginTop={3}>
-          <Grid2 size={6}>
-            <TextField
-              variant="outlined"
-              type="number"
-              label="Quantity in basket"
-              sx={{
-                "& label.Mui-focused": { color: "secondary.main" },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderWidth: "2px" },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "secondary.main",
-                    borderWidth: "2px",
-                  },
-                },
-              }}
-              fullWidth
-              inputProps={{
-                min: 1,
-                max: product.stock_avl,
-              }}
-              value={quantity}
-              onChange={(e) => {
-                const val = Math.max(
-                  1,
-                  Math.min(+e.target.value, product.stock_avl)
-                );
-                setQuantity(val);
-              }}
-            />
-          </Grid2>
-          <Grid2 size={6}>
-            <Button
-              sx={{ height: "53px", fontSize: "1rem", fontWeight: "500" }}
-              color="secondary"
-              size="large"
-              variant="contained"
-              fullWidth
-              onClick={handleAddToCart}
-            >
-              Add to Basket
-            </Button>
-          </Grid2>
+          {product.stock_avl > 0 ? (
+            <>
+              <Grid2 size={6}>
+                <TextField
+                  variant="outlined"
+                  type="number"
+                  label="Quantity in basket"
+                  sx={{
+                    "& label.Mui-focused": { color: "secondary.main" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderWidth: "2px" },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "secondary.main",
+                        borderWidth: "2px",
+                      },
+                    },
+                  }}
+                  fullWidth
+                  inputProps={{
+                    min: 1,
+                    max: product.stock_avl,
+                  }}
+                  value={quantity}
+                  onChange={(e) => {
+                    const val = Math.max(
+                      1,
+                      Math.min(+e.target.value, product.stock_avl)
+                    );
+                    setQuantity(val);
+                  }}
+                />
+              </Grid2>
+              <Grid2 size={6}>
+                <Button
+                  sx={{ height: "53px", fontSize: "1rem", fontWeight: "500" }}
+                  color="secondary"
+                  size="large"
+                  variant="contained"
+                  fullWidth
+                  onClick={handleAddToCart}
+                >
+                  Add to Basket
+                </Button>
+              </Grid2>
+            </>
+          ) : (
+            <Grid2 size={12}>
+              <Typography
+                variant="h6"
+                sx={{
+                  mt: 2,
+                  fontWeight: 600,
+                  textAlign: "center",
+                  color: "secondary.main",
+                }}
+              >
+                Out of Stock
+              </Typography>
+              <Button
+                variant="contained"
+                disabled
+                fullWidth
+                sx={{
+                  mt: 1,
+                  height: "53px",
+                  fontSize: "1rem",
+                  fontWeight: "500",
+                  bgcolor: "grey.400",
+                }}
+              >
+                Add to Basket
+              </Button>
+            </Grid2>
+          )}
         </Grid2>
       </Grid2>
 
