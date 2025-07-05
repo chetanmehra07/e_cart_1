@@ -169,6 +169,8 @@ class order_repo(db_class):
                     "quantity": o.quantity,
                     "total_price": o.total_price,
                     "delivery_address": full_address,
+                    "MRP": product.MRP if product else 0,
+                    "discount": product.discount if product else 0,
                 })
 
             return result

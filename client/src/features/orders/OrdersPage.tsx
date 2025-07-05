@@ -23,6 +23,8 @@ type Order = {
   quantity: number;
   total_price: number;
   delivery_address: string;
+  MRP: number;
+  discount: number;
 };
 
 export default function OrderPage() {
@@ -196,12 +198,26 @@ export default function OrderPage() {
                     justifyContent="space-between"
                     alignItems="center"
                   >
-                    <Typography
-                      variant="body1"
-                      sx={{ color: "secondary.main", fontWeight: "bold" }}
-                    >
-                      ₹{order.total_price.toFixed(2)}
-                    </Typography>
+                    <Box>
+                      <Typography
+                        variant="body1"
+                        sx={{ color: "secondary.main", fontWeight: "bold" }}
+                      >
+                        $
+                        {(
+                          (order.MRP / 100) *
+                          (1 - order.discount / 100)
+                        ).toFixed(2)}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ fontStyle: "italic" }}
+                      >
+                        <s>${(order.MRP / 100).toFixed(2)}</s> (
+                        {order.discount.toFixed(0)}% OFF)
+                      </Typography>
+                    </Box>
 
                     {/* Days Left */}
                     <Typography
