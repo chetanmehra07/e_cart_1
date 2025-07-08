@@ -1,10 +1,12 @@
-from sqlalchemy.orm import declarative_base, sessionmaker
+import os
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 class db_class:
-    engine = create_engine(
-        "mysql+mysqlconnector://chetan_mysql:Chetan%400711@localhost:3306/e_cart"
-    )
-
+    engine = create_engine(os.getenv("DATABASE_URL"))
     Session = sessionmaker(bind=engine)
+
