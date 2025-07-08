@@ -11,7 +11,6 @@ from sqlalchemy import (
 )
 from category_repository import category_repo
 from policies_repository import policy_repo
-from sqlalchemy import text
 
 
 class item_repo(db_class):
@@ -105,15 +104,30 @@ class item_repo(db_class):
             session.close()
 
     def get_paginated_items(self, offset=0, limit=10):
-        session = db_class.Session()
+        session = self.Session()
         try:
-            result = session.execute(
-                text("SELECT * FROM list_items LIMIT :limit OFFSET :offset"),
-                {"limit": limit, "offset": offset}
-            ).fetchall()
-            return [dict(row) for row in result]
+            items = session.query(self.ListItem).offset(offset).limit(limit).all()
+            items_list = []
+            for item in items:
+                category_name = category_repo().get_category_name_by_id(item.item_category)
+                item_dict = {
+                    "product_id": item.product_id,
+                    "product_name": item.product_name,
+                    "MRP": item.MRP,
+                    "discount": item.discount,
+                    "stock_avl": item.stock_avl,
+                    "free_delivery_status": item.free_delivery_status,
+                    "item_category": item.item_category,
+                    "category_name": category_name,
+                    "product_image": item.product_image,
+                    "applicable_policies": item.applicable_policies,
+                    "specs": item.specs,
+                }
+                items_list.append(item_dict)
+            return items_list
         finally:
             session.close()
+
 
     def view_all_items_by_category(self, category_id):
         session = self.Session()

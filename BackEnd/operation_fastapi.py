@@ -59,7 +59,8 @@ def read_root():
 def get_store_items(page: int = 1, limit: int = 10):
     try:
         offset = (page - 1) * limit
-        return item_repo().get_paginated_items(offset=offset, limit=limit)
+        items = item_repo().get_paginated_items(offset=offset, limit=limit)
+        return items
     except Exception as e:
         print("Error in /store:", e)
         return JSONResponse({"error": "Something went wrong."}, status_code=500)
