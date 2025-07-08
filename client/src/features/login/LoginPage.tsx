@@ -63,11 +63,14 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNo, password }),
-      });
+      const response = await fetch(
+        "https://e-cart-backend-yrbb.onrender.com/signin",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phoneNo, password }),
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();

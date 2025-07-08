@@ -15,7 +15,9 @@ export type CartItem = {
 
 export const apiSlice = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "https://e-cart-backend-yrbb.onrender.com",
+  }),
   tagTypes: ["Cart"],
   endpoints: (builder) => ({
     fetchBasket: builder.query<CartItem[], number>({

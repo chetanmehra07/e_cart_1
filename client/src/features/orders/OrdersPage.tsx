@@ -38,7 +38,7 @@ export default function OrderPage() {
     const fetchOrders = async () => {
       try {
         const res = await fetch(
-          `http://localhost:8000/orders?login_id=${loginid}`
+          `https://e-cart-backend-yrbb.onrender.com/orders?login_id=${loginid}`
         );
         const data = await res.json();
         setOrders(data);
@@ -55,7 +55,7 @@ export default function OrderPage() {
   const cancelOrder = async (order_id: number) => {
     try {
       const res = await fetch(
-        `http://localhost:8000/orders/cancel?order_id=${order_id}`,
+        `https://e-cart-backend-yrbb.onrender.com/orders/cancel?order_id=${order_id}`,
         {
           method: "DELETE",
         }

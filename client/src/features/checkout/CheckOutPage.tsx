@@ -58,7 +58,7 @@ export default function CheckoutPage() {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/user_address/get?login_id=${loginid}`
+          `https://e-cart-backend-yrbb.onrender.com/user_address/get?login_id=${loginid}`
         );
         if (!response.ok) throw new Error("Failed to fetch addresses");
         const data: UserAddress[] = await response.json();
@@ -83,7 +83,7 @@ export default function CheckoutPage() {
 
     try {
       const cartRes = await fetch(
-        `http://localhost:8000/cart?loginid=${loginid}`
+        `https://e-cart-backend-yrbb.onrender.com/cart?loginid=${loginid}`
       );
       const cartItems: CartItem[] = await cartRes.json();
 
@@ -105,14 +105,17 @@ export default function CheckoutPage() {
       };
 
       // ✅ Send all orders in one request
-      await fetch("http://localhost:8000/order/add", {
+      await fetch("https://e-cart-backend-yrbb.onrender.com/order/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),
       });
-      await fetch(`http://localhost:8000/cart/clear?loginid=${loginid}`, {
-        method: "DELETE",
-      });
+      await fetch(
+        `https://e-cart-backend-yrbb.onrender.com/cart/clear?loginid=${loginid}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       await clearCart(loginid);
 

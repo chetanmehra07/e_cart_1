@@ -34,7 +34,9 @@ export default function UserProfilePage() {
 
   useEffect(() => {
     if (user?.loginid) {
-      fetch(`http://localhost:8000/login/info?loginid=${user.loginid}`)
+      fetch(
+        `https://e-cart-backend-yrbb.onrender.com/login/info?loginid=${user.loginid}`
+      )
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch profile");
           return res.json();

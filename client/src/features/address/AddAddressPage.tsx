@@ -50,7 +50,9 @@ export default function AddAddressPage() {
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const res = await fetch("http://localhost:8000/states/all");
+        const res = await fetch(
+          "https://e-cart-backend-yrbb.onrender.com/states/all"
+        );
         const data = await res.json();
         setStates(data);
       } catch (error) {
@@ -81,11 +83,14 @@ export default function AddAddressPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:8000/user_address/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        "https://e-cart-backend-yrbb.onrender.com/user_address/add",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to add address");
 

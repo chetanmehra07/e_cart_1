@@ -6,7 +6,7 @@ import {
 import { startLoading, stopLoading } from "../layout/uiSlice";
 
 const customBaseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:8000",
+  baseUrl: "https://e-cart-backend-yrbb.onrender.com",
 });
 
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));

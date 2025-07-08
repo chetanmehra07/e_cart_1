@@ -50,11 +50,14 @@ const ContactPage = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:8000/contact/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const res = await fetch(
+        "https://e-cart-backend-yrbb.onrender.com/contact/add",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (res.ok) {
         setOpenSnackbar(true);
