@@ -14,7 +14,7 @@ export default function HeroSection() {
         alignItems: "center",
         justifyContent: "center",
         px: { xs: 2, md: 8 },
-        py: 6,
+        py: { xs: 4, md: 6 },
         background: "rgba(135, 128, 138, 0.37)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
@@ -28,29 +28,30 @@ export default function HeroSection() {
         {/* Left Text */}
         <Grid item xs={12} md={6}>
           <Typography
-            fontSize="2.5rem"
+            fontSize={{ xs: "2rem", md: "2.5rem" }}
             fontWeight="bold"
-            fontFamily={"cursive"}
+            fontFamily="cursive"
             color="secondary"
             sx={{ mb: "-0.5rem" }}
           >
             Welcome to
           </Typography>
           <Typography
-            fontSize="4.2rem"
+            fontSize={{ xs: "3rem", md: "4.2rem" }}
             fontWeight="bold"
-            fontFamily={"cursive"}
+            fontFamily="cursive"
             color="secondary"
             sx={{ mb: "0.5rem" }}
           >
-            Re-Store !
+            Re-Store!
           </Typography>
           <Typography
             variant="body1"
             sx={{
-              maxWidth: "600",
+              maxWidth: "600px",
               textAlign: "justify",
               textJustify: "inter-word",
+              fontSize: { xs: "1rem", md: "1.1rem" },
             }}
             paragraph
           >
@@ -59,7 +60,15 @@ export default function HeroSection() {
             more, and enjoy reliable tech delivered to your doorstep.
           </Typography>
 
-          <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+          <Box
+            sx={{
+              mt: 3,
+              display: "flex",
+              gap: 2,
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "stretch", sm: "center" },
+            }}
+          >
             <Button
               variant="contained"
               onClick={() => navigate("/catalog")}
@@ -67,7 +76,7 @@ export default function HeroSection() {
                 bgcolor: "white",
                 color: "rgb(130, 38, 196)",
                 fontWeight: "bold",
-                fontSize: "1.2rem",
+                fontSize: "1.1rem",
                 borderRadius: "15px",
                 px: 4,
                 py: 1.3,
@@ -92,7 +101,7 @@ export default function HeroSection() {
                 borderWidth: "2.5px",
                 fontWeight: "bold",
                 borderRadius: "15px",
-                fontSize: "1.25rem",
+                fontSize: "1.1rem",
                 px: 4,
                 py: 1.3,
                 textTransform: "none",
@@ -115,9 +124,10 @@ export default function HeroSection() {
             src={shoppingimg}
             alt="Online Shopping"
             sx={{
-              ml: "4.5rem",
+              ml: { xs: 0, md: "4.5rem" },
               width: "100%",
-              maxWidth: 490,
+              maxWidth: { xs: 300, sm: 400, md: 490 },
+              mx: "auto",
             }}
           />
         </Grid>

@@ -22,7 +22,7 @@ app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://demo-restore.netlify.app"],  # OR "https" if you're using SSL
+    allow_origins=["*"],  # OR "https" if you're using SSL
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers (e.g., Content-Type, Authorization)
