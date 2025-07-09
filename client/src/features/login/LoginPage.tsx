@@ -93,8 +93,8 @@ export default function LoginPage() {
       setSnackSuccess(true);
 
       setTimeout(() => {
-        navigate("/catalog");
-      }, 2000);
+        navigate("/basket");
+      }, 1);
     } catch (err) {
       console.error("Login error:", err);
       setError("An error occurred during login.");

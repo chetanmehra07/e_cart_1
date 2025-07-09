@@ -8,6 +8,7 @@ import {
   Divider,
   Snackbar,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -38,8 +39,9 @@ export default function BasketPage() {
   const [updateCartItem] = useUpdateCartItemMutation();
   const [deleteCartItem] = useDeleteCartItemMutation();
   const [snackLimitOpen, setSnackLimitOpen] = useState(false);
+  const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
 
-  const handleUpdateQuantity = (product_id: number, newCount: number) => {
+  const handleUpdateQuantity = async (product_id: number, newCount: number) => {
     const item = data.find((i) => i.product_id === product_id);
     if (!item) return;
 
@@ -50,18 +52,27 @@ export default function BasketPage() {
 
     if (newCount < 1) return;
 
+    setLoadingProductId(product_id);
+
     if (isLoggedIn) {
-      updateCartItem({
-        loginid: loginid!,
-        product_id,
-        item_count: newCount,
-        added_date: new Date().toISOString().split("T")[0],
-      });
+      try {
+        await updateCartItem({
+          loginid: loginid!,
+          product_id,
+          item_count: newCount,
+          added_date: new Date().toISOString().split("T")[0],
+        }).unwrap();
+      } catch (error) {
+        console.error("Update failed:", error);
+      } finally {
+        setLoadingProductId(null);
+      }
     } else {
       const updated = guestCart.map((i) =>
         i.product_id === product_id ? { ...i, item_count: newCount } : i
       );
       saveGuestCart(updated);
+      setLoadingProductId(null);
       window.location.reload();
     }
   };
@@ -79,6 +90,7 @@ export default function BasketPage() {
   };
 
   if (isLoading) return <Typography>Loading...</Typography>;
+
   if (!data || data.length === 0)
     return (
       <Paper
@@ -203,6 +215,7 @@ export default function BasketPage() {
                   <Box display="flex" alignItems="center" mt={1}>
                     <IconButton
                       size="small"
+                      disabled={loadingProductId === item.product_id}
                       sx={{
                         color: "secondary.main",
                         width: 40,
@@ -220,7 +233,14 @@ export default function BasketPage() {
                         )
                       }
                     >
-                      <Remove />
+                      {loadingProductId === item.product_id ? (
+                        <CircularProgress
+                          size={16}
+                          sx={{ color: "secondary.main" }}
+                        />
+                      ) : (
+                        <Remove />
+                      )}
                     </IconButton>
 
                     <Typography
@@ -235,6 +255,7 @@ export default function BasketPage() {
 
                     <IconButton
                       size="small"
+                      disabled={loadingProductId === item.product_id}
                       sx={{
                         color: "whitesmoke",
                         width: 40,
@@ -252,7 +273,14 @@ export default function BasketPage() {
                         )
                       }
                     >
-                      <Add />
+                      {loadingProductId === item.product_id ? (
+                        <CircularProgress
+                          size={16}
+                          sx={{ color: "secondary.main" }}
+                        />
+                      ) : (
+                        <Add />
+                      )}
                     </IconButton>
                   </Box>
                 </Box>
@@ -364,7 +392,6 @@ export default function BasketPage() {
         </Grid>
       </Grid>
 
-      {/* Snackbar for stock limit reached */}
       <Snackbar
         open={snackLimitOpen}
         autoHideDuration={3000}

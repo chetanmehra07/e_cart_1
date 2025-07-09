@@ -56,15 +56,13 @@ def read_root():
 
 
 @app.get("/store")
-def get_store_items(page: int = 1, limit: int = 10):
+def get_store_items():
     try:
-        offset = (page - 1) * limit
-        items = item_repo().get_paginated_items(offset=offset, limit=limit)
-        return items
+        item = item_repo().view_all_items()
+        return item
     except Exception as e:
         print("Error in /store:", e)
         return JSONResponse({"error": "Something went wrong."}, status_code=500)
-
 
 
 @app.get("/store/product/{product_id}")

@@ -103,10 +103,10 @@ class item_repo(db_class):
         finally:
             session.close()
 
-    def get_paginated_items(self, offset=0, limit=10):
+    def view_all_items(self):
         session = self.Session()
         try:
-            items = session.query(self.ListItem).offset(offset).limit(limit).all()
+            items = session.query(self.ListItem).all()
             items_list = []
             for item in items:
                 category_name = category_repo().get_category_name_by_id(item.item_category)
@@ -118,7 +118,7 @@ class item_repo(db_class):
                     "stock_avl": item.stock_avl,
                     "free_delivery_status": item.free_delivery_status,
                     "item_category": item.item_category,
-                    "category_name": category_name,
+                    "category_name": category_name, 
                     "product_image": item.product_image,
                     "applicable_policies": item.applicable_policies,
                     "specs": item.specs,
@@ -127,7 +127,6 @@ class item_repo(db_class):
             return items_list
         finally:
             session.close()
-
 
     def view_all_items_by_category(self, category_id):
         session = self.Session()
