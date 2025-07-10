@@ -225,14 +225,20 @@ export default function ProductDetails() {
                     type="number"
                     value={quantity}
                     onChange={(e) => {
-                      const val = Math.max(
-                        1,
-                        Math.min(+e.target.value, maxAllowedQuantity)
-                      );
-                      setQuantity(val);
+                      const val = Number(e.target.value);
+                      if (!isNaN(val)) {
+                        setQuantity(
+                          Math.max(1, Math.min(val, maxAllowedQuantity))
+                        );
+                      }
+                    }}
+                    inputProps={{
+                      min: 1,
+                      max: maxAllowedQuantity,
+                      step: 1,
+                      readOnly: true, // <-- This is the key to disable manual typing!
                     }}
                     fullWidth
-                    inputProps={{ min: 1, max: maxAllowedQuantity }}
                     sx={{
                       "& label.Mui-focused": { color: "secondary.main" },
                       "& .MuiOutlinedInput-root": {
