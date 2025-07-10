@@ -8,6 +8,8 @@ import {
   Snackbar,
   InputAdornment,
   IconButton,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -34,9 +36,11 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const [updateCartItem] = useUpdateCartItemMutation();
-  const [triggerFetchBasket] = useLazyFetchBasketQuery(); // ✅ Using lazy query
+  const [triggerFetchBasket] = useLazyFetchBasketQuery();
 
-  // ✅ Merge guest cart to backend
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const mergeGuestCartToBackend = async (loginid: number) => {
     const guestCart: CartItem[] = getGuestCart();
     if (!guestCart.length) return;
@@ -52,7 +56,7 @@ export default function LoginPage() {
           })
         )
       );
-      clearGuestCart(); // ✅ Clear guest cart after successful sync
+      clearGuestCart();
       console.log("✅ Guest cart merged to backend");
     } catch (err) {
       console.error("❌ Failed to merge guest cart:", err);
@@ -78,7 +82,7 @@ export default function LoginPage() {
         return;
       }
 
-      const data = await response.json(); // { loginid: 1, UserName: "Chetan" }
+      const data = await response.json();
 
       if (!data.loginid || !data.UserName) {
         setError("Invalid response from server.");
@@ -86,8 +90,8 @@ export default function LoginPage() {
       }
 
       dispatch(setUser({ loginid: data.loginid, UserName: data.UserName }));
-      await mergeGuestCartToBackend(data.loginid); // ✅ Merge guest cart
-      await triggerFetchBasket(data.loginid); // ✅ Refresh basket after merging
+      await mergeGuestCartToBackend(data.loginid);
+      await triggerFetchBasket(data.loginid);
 
       setUserName(data.UserName);
       setSnackSuccess(true);
@@ -102,9 +106,29 @@ export default function LoginPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 10 }}>
-      <Paper elevation={6} sx={{ p: 4, borderRadius: 3 }}>
-        <Typography variant="h5" mb={3} textAlign="center">
+    <Container
+      maxWidth="sm"
+      sx={{
+        mt: { xs: 6, sm: 10 },
+        px: { xs: 2, sm: 4 },
+        overflowX: "hidden",
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          p: { xs: 3, sm: 4 },
+          borderRadius: 3,
+          boxShadow: 4,
+        }}
+      >
+        <Typography
+          variant={isMobile ? "h6" : "h5"}
+          mb={3}
+          textAlign="center"
+          fontWeight="bold"
+          color="secondary"
+        >
           Login to Re-Store
         </Typography>
 
@@ -145,7 +169,7 @@ export default function LoginPage() {
                 <IconButton
                   onClick={() => setShowPassword((prev) => !prev)}
                   edge="end"
-                  sx={{ padding: "20px" }}
+                  sx={{ p: 1 }}
                 >
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
@@ -168,15 +192,29 @@ export default function LoginPage() {
           variant="contained"
           color="secondary"
           fullWidth
-          sx={{ mt: 2 }}
+          sx={{
+            mt: 2,
+            fontWeight: 600,
+            py: 1.5,
+            fontSize: isMobile ? "0.95rem" : "1rem",
+          }}
           onClick={handleLogin}
         >
           Login
         </Button>
-        <Typography variant="body2" textAlign="center" sx={{ mt: 3 }}>
+
+        <Typography
+          variant="body2"
+          textAlign="center"
+          sx={{ mt: 3, fontSize: isMobile ? "0.85rem" : "1rem" }}
+        >
           Don't have an account?{" "}
           <span
-            style={{ color: "#9c27b0", cursor: "pointer", fontWeight: "bold" }}
+            style={{
+              color: "#9c27b0",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
             onClick={() => navigate("/register")}
           >
             Register
@@ -184,7 +222,6 @@ export default function LoginPage() {
         </Typography>
       </Paper>
 
-      {/* ✅ Success Snackbar */}
       <Snackbar
         open={snackSuccess}
         autoHideDuration={3000}

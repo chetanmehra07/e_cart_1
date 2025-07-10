@@ -1,5 +1,3 @@
-// src/pages/UserProfilePage.tsx
-
 import {
   Box,
   Container,
@@ -7,6 +5,8 @@ import {
   Paper,
   Typography,
   Button,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +31,9 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     if (user?.loginid) {
@@ -68,17 +71,23 @@ export default function UserProfilePage() {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 10 }}>
+    <Container maxWidth="sm" sx={{ mt: { xs: 6, sm: 10 }, px: { xs: 2 } }}>
       <Paper
         elevation={6}
         sx={{
-          p: 4,
+          p: { xs: 3, sm: 4 },
           borderRadius: 3,
           backgroundColor: "secondary",
           backdropFilter: "blur(4px)",
         }}
       >
-        <Typography variant="h4" textAlign="center" gutterBottom>
+        <Typography
+          variant={isMobile ? "h5" : "h4"}
+          textAlign="center"
+          gutterBottom
+          fontWeight="bold"
+          color="secondary"
+        >
           Profile Information
         </Typography>
         <Divider sx={{ mb: 3 }} />
@@ -92,20 +101,42 @@ export default function UserProfilePage() {
                 sx={{
                   display: "flex",
                   justifyContent: "space-between",
-                  mb: 3,
+                  alignItems: "center",
+                  mb: 2,
                   px: 1,
+                  flexWrap: "wrap",
                 }}
               >
-                <Typography fontWeight="bold" color="secondary">
-                  {key.replace(/([A-Z])/g, " $1").toUpperCase()}
+                <Typography
+                  fontWeight="bold"
+                  color="secondary"
+                  sx={{ fontSize: { xs: "0.9rem", sm: "1rem" }, mr: 1 }}
+                >
+                  {key.replace(/([A-Z])/g, " $1").toUpperCase()}:
                 </Typography>
-                <Typography color="text.secondary">{String(value)}</Typography>
+                <Typography
+                  color="text.secondary"
+                  sx={{
+                    fontSize: { xs: "0.7rem", sm: "1rem" },
+                    wordBreak: "break-word",
+                    textAlign: "right",
+                    flex: 1,
+                  }}
+                >
+                  {String(value)}
+                </Typography>
               </Box>
             ))}
 
         <Divider sx={{ my: 3 }} />
 
-        <Box sx={{ display: "flex", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+          }}
+        >
           <Button
             variant="outlined"
             color="secondary"

@@ -11,6 +11,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -26,13 +28,13 @@ export default function AddAddressPage() {
   const { user } = useAppSelector((state) => state.account);
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || "/address"; // default redirect
+  const from = location.state?.from || "/address";
 
   const [form, setForm] = useState({
     address_part1: "",
     address_part2: "",
     city: "",
-    state: "", // we'll use state_id (string) here, convert before sending
+    state: "",
     nation: "",
     pincode: "",
     landmark: "",
@@ -46,6 +48,9 @@ export default function AddAddressPage() {
     message: "",
     success: true,
   });
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -79,7 +84,7 @@ export default function AddAddressPage() {
     const payload = {
       ...form,
       login_id: user.loginid,
-      state: parseInt(form.state), // backend expects int
+      state: parseInt(form.state),
     };
 
     try {
@@ -112,13 +117,28 @@ export default function AddAddressPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 10 }}>
-      <Paper sx={{ p: 4, borderRadius: 3, background: "secondary" }}>
+    <Container
+      maxWidth="sm"
+      sx={{
+        mt: { xs: 6, sm: 10 },
+        px: { xs: 1.5, sm: 2 },
+        overflowX: "hidden",
+      }}
+    >
+      <Paper
+        sx={{
+          p: { xs: 3, sm: 4 },
+          borderRadius: 3,
+          backgroundColor: "background.paper",
+          boxShadow: 4,
+        }}
+      >
         <Typography
-          variant="h4"
+          variant={isMobile ? "h5" : "h4"}
           gutterBottom
           textAlign="center"
           color="secondary"
+          fontWeight="bold"
         >
           Add New Address
         </Typography>
@@ -185,7 +205,12 @@ export default function AddAddressPage() {
           <Button
             variant="contained"
             color="secondary"
-            sx={{ mt: 2, fontWeight: "bold" }}
+            sx={{
+              mt: 2,
+              fontWeight: "bold",
+              py: 1.2,
+              fontSize: isMobile ? "0.9rem" : "1rem",
+            }}
             onClick={handleSubmit}
           >
             ➕ Add Address

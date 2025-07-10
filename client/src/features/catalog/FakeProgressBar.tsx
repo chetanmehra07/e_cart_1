@@ -19,7 +19,13 @@ export default function FakeProgressBar() {
   }, []);
 
   return (
-    <Box sx={{ width: "100%", mx: "auto", mt: 4 }}>
+    <Box
+      sx={{
+        width: "100%",
+
+        mt: { xs: 4, sm: 4, md: 4 },
+      }}
+    >
       <LinearProgress
         variant="determinate"
         value={progress}
@@ -35,7 +41,12 @@ export default function FakeProgressBar() {
       <Typography
         align="center"
         variant="caption"
-        sx={{ mt: 1, display: "block", color: "text.secondary" }}
+        sx={{
+          mt: 1,
+          display: "block",
+          color: "text.secondary",
+          fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.9rem" },
+        }}
       >
         Loading {progress}% – getting your perfect products ready! 🧺
       </Typography>

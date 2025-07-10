@@ -58,7 +58,6 @@ const pollQuestions = [
   },
 ];
 
-// Shuffle function (Fisher-Yates)
 function shuffleArray(array: typeof pollQuestions) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -77,8 +76,7 @@ export default function PollCard() {
   const [showThanks, setShowThanks] = useState(false);
 
   useEffect(() => {
-    const shuffled = shuffleArray(pollQuestions);
-    setShuffledQuestions(shuffled);
+    setShuffledQuestions(shuffleArray(pollQuestions));
   }, []);
 
   const currentQuestion = shuffledQuestions[questionIndex];
@@ -100,22 +98,31 @@ export default function PollCard() {
       sx={{
         mt: 3,
         mx: "auto",
-        maxWidth: 420,
+        width: "100%",
+        maxWidth: { xs: "95%", sm: 420 },
         borderRadius: 3,
         bgcolor: "rgba(125, 123, 123, 0.29)",
         backdropFilter: "blur(12px)",
-        p: 2.5,
+        p: { xs: 2, sm: 2.5 },
         boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
       }}
     >
       <CardContent>
-        {/* Introductory message */}
         <Fade in>
           <Box mb={2}>
-            <Typography variant="h6" color="secondary" gutterBottom>
+            <Typography
+              variant="h6"
+              color="secondary"
+              gutterBottom
+              sx={{ fontSize: { xs: "1.1rem", sm: "1.2rem" } }}
+            >
               👋 Hey! We’re just getting started…
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: { xs: "0.95rem", sm: "1rem" } }}
+            >
               As a new e-commerce platform, your opinion really helps us improve
               your shopping experience. Could you take a moment to share?
             </Typography>
@@ -127,7 +134,12 @@ export default function PollCard() {
         {!showThanks && currentQuestion ? (
           <>
             <Fade in>
-              <Typography variant="body1" fontWeight={500} mb={1}>
+              <Typography
+                variant="body1"
+                fontWeight={500}
+                mb={1}
+                sx={{ fontSize: { xs: "1rem", sm: "1.1rem" } }}
+              >
                 {currentQuestion.question}
               </Typography>
             </Fade>
@@ -143,7 +155,7 @@ export default function PollCard() {
                   sx={{
                     borderRadius: 2,
                     textTransform: "none",
-                    fontSize: "1.01rem",
+                    fontSize: { xs: "0.95rem", sm: "1.01rem" },
                     background: "secondary.main",
                     backdropFilter: "blur(8px)",
                     boxShadow: "0 6px 12px rgba(0,0,0,0.15)",
@@ -170,6 +182,7 @@ export default function PollCard() {
                 variant="body2"
                 color="secondary"
                 textAlign="center"
+                sx={{ fontSize: { xs: "0.95rem", sm: "1rem" } }}
               >
                 Got it! Your opinion helps us shape a better experience.
               </Typography>
@@ -178,10 +191,20 @@ export default function PollCard() {
         ) : (
           <Fade in>
             <Box mt={2}>
-              <Typography variant="body1" color="success.main" fontWeight={600}>
+              <Typography
+                variant="body1"
+                color="success.main"
+                fontWeight={600}
+                sx={{ fontSize: { xs: "1rem", sm: "1.1rem" } }}
+              >
                 🎉 Thank you for sharing your thoughts!
               </Typography>
-              <Typography variant="body2" color="text.secondary" mt={1}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                mt={1}
+                sx={{ fontSize: { xs: "0.95rem", sm: "1rem" } }}
+              >
                 Your feedback is shaping the future of our store.
               </Typography>
             </Box>

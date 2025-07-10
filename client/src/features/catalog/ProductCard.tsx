@@ -101,10 +101,11 @@ export default function ProductCard({ product }: Props) {
   return (
     <>
       <Card
-        elevation={10}
+        elevation={8}
         sx={{
-          width: 280,
-          borderRadius: 4,
+          width: "100%",
+          height: "100%",
+          borderRadius: 3,
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
@@ -113,30 +114,68 @@ export default function ProductCard({ product }: Props) {
         }}
       >
         <CardMedia
-          sx={{ height: 250, backgroundSize: "cover" }}
+          sx={{
+            height: { xs: 140, sm: 170, md: 200 },
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+          }}
           image={product.product_image}
           title={product.product_name}
         />
-        <CardContent>
+        <CardContent sx={{ px: 2, py: 1.2 }}>
           <Typography
             gutterBottom
-            variant="h6"
-            sx={{ textTransform: "uppercase" }}
+            sx={{
+              textTransform: "uppercase",
+              fontSize: { xs: "0.85rem", sm: "0.95rem" },
+              fontWeight: 600,
+              color: "text.primary",
+              lineHeight: 1.3,
+            }}
           >
             {product.product_name}
           </Typography>
 
-          <Typography variant="h6" color="secondary" fontWeight="bold">
-            ${((product.MRP / 100) * (1 - product.discount / 100)).toFixed(2)}
+          <Typography
+            sx={{
+              fontSize: { xs: "0.95rem", sm: "1.05rem" },
+              color: "secondary.main",
+              fontWeight: 700,
+            }}
+          >
+            ₹{((product.MRP / 100) * (1 - product.discount / 100)).toFixed(2)}
           </Typography>
-          <Typography variant="subtitle1" color="text.secondary">
-            <s>${(product.MRP / 100).toFixed(2)}</s>{" "}
-            <Typography component="span" variant="subtitle1" color="secondary">
+
+          <Typography
+            sx={{
+              fontSize: { xs: "0.75rem", sm: "0.85rem" },
+              color: "text.secondary",
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+            }}
+          >
+            <s>₹{(product.MRP / 100).toFixed(2)}</s>
+            <Typography
+              component="span"
+              color="secondary"
+              fontWeight={600}
+              fontSize={{ xs: "0.75rem", sm: "0.85rem" }}
+            >
               ({product.discount.toFixed(0)}% OFF)
             </Typography>
           </Typography>
         </CardContent>
-        <CardActions sx={{ justifyContent: "space-between" }}>
+
+        <CardActions
+          sx={{
+            justifyContent: "space-between",
+            px: 2,
+            pb: 2,
+          }}
+        >
           {product.stock_avl > 0 ? (
             <Button
               variant="contained"
@@ -145,20 +184,20 @@ export default function ProductCard({ product }: Props) {
                 backgroundColor: "rgba(39, 165, 194, 0.67)",
                 color: "whitesmoke",
                 fontWeight: 600,
-                "&:hover": {
-                  backgroundColor: "rgb(16, 177, 213)",
-                },
+                fontSize: { xs: "0.7rem", sm: "0.85rem" },
+                px: 2,
+                py: 0.6,
+                minWidth: { xs: "45%", sm: "auto" },
               }}
             >
-              Add to cart
+              Add
             </Button>
           ) : (
             <Typography
               sx={{
-                px: 1.5,
                 color: "secondary.main",
                 fontWeight: 600,
-                fontSize: "1.15rem",
+                fontSize: { xs: "0.75rem", sm: "0.9rem" },
               }}
             >
               Out of stock
@@ -173,9 +212,10 @@ export default function ProductCard({ product }: Props) {
               backgroundColor: "rgba(89, 28, 139, 0.63)",
               color: "whitesmoke",
               fontWeight: 600,
-              "&:hover": {
-                backgroundColor: "rgb(123, 34, 195)",
-              },
+              fontSize: { xs: "0.7rem", sm: "0.85rem" },
+              px: 2,
+              py: 0.6,
+              minWidth: { xs: "45%", sm: "auto" },
             }}
           >
             View
@@ -183,7 +223,7 @@ export default function ProductCard({ product }: Props) {
         </CardActions>
       </Card>
 
-      {/* Success Snackbar */}
+      {/* Snackbars */}
       <Snackbar
         open={snackOpen}
         autoHideDuration={3000}
@@ -206,7 +246,6 @@ export default function ProductCard({ product }: Props) {
         </Alert>
       </Snackbar>
 
-      {/* Error Snackbar */}
       <Snackbar
         open={snackError}
         autoHideDuration={3000}
@@ -227,6 +266,7 @@ export default function ProductCard({ product }: Props) {
           Failed to add item to cart. Please try again!
         </Alert>
       </Snackbar>
+
       <Snackbar
         open={snackStockLimit}
         autoHideDuration={2000}
@@ -245,7 +285,7 @@ export default function ProductCard({ product }: Props) {
             backgroundColor: "secondary.main",
           }}
         >
-          maximum quantity in stock is reached
+          Maximum quantity in stock is reached
         </Alert>
       </Snackbar>
     </>

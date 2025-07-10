@@ -12,6 +12,8 @@ import {
   MenuItem,
   InputAdornment,
   IconButton,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -47,6 +49,9 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const isValidEmail = (email: string) => /^[^\s@]+@gmail\.com$/.test(email);
   const isValidPhone = (phone: string) => /^[0-9]{10}$/.test(phone);
@@ -122,11 +127,34 @@ export default function RegisterPage() {
       setError("Something went wrong during registration.");
     }
   };
+  const isFormValid = () => {
+    const isEmpty = Object.values(formData).some((val) => val.trim() === "");
+    return (
+      !isEmpty &&
+      confirmPassword.trim() !== "" &&
+      isValidEmail(formData.emailaddress) &&
+      isValidPhone(formData.phoneNo) &&
+      passwordsMatch
+    );
+  };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 10 }}>
-      <Paper elevation={6} sx={{ p: 4, borderRadius: 3 }}>
-        <Typography variant="h5" textAlign="center" gutterBottom>
+    <Container
+      maxWidth="md"
+      sx={{
+        mt: { xs: 6, sm: 10 },
+        px: { xs: 2, sm: 4 },
+        pb: { xs: 4, sm: 6 },
+      }}
+    >
+      <Paper elevation={6} sx={{ p: { xs: 3, sm: 4 }, borderRadius: 3 }}>
+        <Typography
+          variant={isMobile ? "h6" : "h5"}
+          textAlign="center"
+          gutterBottom
+          fontWeight="bold"
+          color="secondary"
+        >
           Register for Re-Store
         </Typography>
 
@@ -135,7 +163,6 @@ export default function RegisterPage() {
             {error}
           </Alert>
         )}
-
         {success && (
           <Alert severity="success" sx={{ mb: 2 }}>
             Registration successful! Redirecting to login...
@@ -143,7 +170,6 @@ export default function RegisterPage() {
         )}
 
         <Grid container spacing={2}>
-          {/* Username */}
           <Grid item xs={12}>
             <TextField
               label="Username"
@@ -156,7 +182,6 @@ export default function RegisterPage() {
             />
           </Grid>
 
-          {/* Set Password */}
           <Grid item xs={12}>
             <TextField
               label="Set Password"
@@ -172,7 +197,6 @@ export default function RegisterPage() {
                     <IconButton
                       onClick={() => setShowPassword((prev) => !prev)}
                       edge="end"
-                      sx={{ p: "4px", mr: "6px" }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -186,7 +210,6 @@ export default function RegisterPage() {
                 sx={{
                   fontWeight: 600,
                   fontSize: "0.8rem",
-                  borderRadius: 1,
                   color:
                     passwordStrength === "Weak"
                       ? "#d32f2f"
@@ -200,7 +223,6 @@ export default function RegisterPage() {
             )}
           </Grid>
 
-          {/* Confirm Password */}
           <Grid item xs={12}>
             <TextField
               label="Re-enter Password"
@@ -221,7 +243,6 @@ export default function RegisterPage() {
                     <IconButton
                       onClick={() => setShowConfirmPassword((prev) => !prev)}
                       edge="end"
-                      sx={{ p: "4px", mr: "6px" }}
                     >
                       {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -233,7 +254,7 @@ export default function RegisterPage() {
           </Grid>
 
           {/* First Name / Last Name */}
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               label="First Name"
               name="first_name"
@@ -244,7 +265,7 @@ export default function RegisterPage() {
               sx={textFieldStyles}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               label="Last Name"
               name="last_name"
@@ -256,8 +277,7 @@ export default function RegisterPage() {
             />
           </Grid>
 
-          {/* Email / Phone */}
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               label="Email Address"
               name="emailaddress"
@@ -269,7 +289,7 @@ export default function RegisterPage() {
               sx={textFieldStyles}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               label="Phone Number"
               name="phoneNo"
@@ -282,8 +302,8 @@ export default function RegisterPage() {
             />
           </Grid>
 
-          {/* Date of Birth / Gender side by side */}
-          <Grid item xs={6}>
+          {/* DOB and Gender */}
+          <Grid item xs={12} sm={6}>
             <TextField
               label="Date of Birth"
               name="DateOfBirth"
@@ -296,7 +316,7 @@ export default function RegisterPage() {
               sx={textFieldStyles}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <FormControl fullWidth required sx={textFieldStyles}>
               <InputLabel id="gender-label">Gender</InputLabel>
               <Select
@@ -315,24 +335,25 @@ export default function RegisterPage() {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          <Grid item xs={6}>
+        <Grid container spacing={2} sx={{ mt: 3 }}>
+          <Grid item xs={12} sm={6}>
             <Button
               variant="outlined"
               color="secondary"
               fullWidth
               onClick={() => navigate("/address")}
+              disabled={!isFormValid()}
             >
               Add Address
             </Button>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <Button
               variant="contained"
               color="secondary"
               fullWidth
               onClick={handleSubmit}
-              disabled={!passwordsMatch}
+              disabled={!isFormValid()}
             >
               Register
             </Button>

@@ -235,10 +235,17 @@ export default function NavBar() {
               </Box>
             </>
           ) : (
-            // Mobile hamburger menu
-            <IconButton onClick={handleDrawerToggle}>
-              <MenuIcon />
-            </IconButton>
+            // Mobile hamburger + cart icon
+            <Box display="flex" alignItems="center">
+              <IconButton component={Link} to="/basket" size="medium">
+                <Badge badgeContent={itemCount} color="secondary">
+                  <ShoppingCart />
+                </Badge>
+              </IconButton>
+              <IconButton onClick={handleDrawerToggle}>
+                <MenuIcon />
+              </IconButton>
+            </Box>
           )}
         </Toolbar>
 

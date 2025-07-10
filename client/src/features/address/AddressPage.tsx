@@ -1,5 +1,3 @@
-// src/pages/AddressPage.tsx
-
 import {
   Box,
   Button,
@@ -8,6 +6,8 @@ import {
   Typography,
   Divider,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -29,6 +29,9 @@ export default function AddressPage() {
   const { user } = useAppSelector((state) => state.account);
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -60,7 +63,6 @@ export default function AddressPage() {
       );
       if (!response.ok) throw new Error("Failed to delete address");
 
-      // Remove the deleted address from state
       setAddresses((prev) =>
         prev.filter((address) => address.address_id !== address_id)
       );
@@ -70,24 +72,33 @@ export default function AddressPage() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 10 }}>
+    <Container
+      maxWidth="md"
+      sx={{
+        mt: { xs: 6, sm: 10 },
+        px: { xs: 1.5, sm: 3 },
+        overflowX: "hidden",
+      }}
+    >
       <Paper
         elevation={6}
         sx={{
-          p: 4,
+          p: { xs: 2, sm: 4 },
           borderRadius: 3,
-          background: "secondary",
-          backdropFilter: "blur(6px)",
+          backgroundColor: "background.paper",
+          boxShadow: 4,
         }}
       >
         <Typography
-          variant="h4"
+          variant={isMobile ? "h5" : "h4"}
           textAlign="center"
           gutterBottom
           color="secondary"
+          fontWeight="bold"
         >
           Saved Addresses
         </Typography>
+
         <Divider sx={{ mb: 4 }} />
 
         {loading ? (
@@ -95,7 +106,11 @@ export default function AddressPage() {
             <CircularProgress color="secondary" />
           </Box>
         ) : addresses.length === 0 ? (
-          <Typography textAlign="center" color="text.secondary">
+          <Typography
+            textAlign="center"
+            color="text.secondary"
+            variant={isMobile ? "body1" : "h6"}
+          >
             No addresses found for your account.
           </Typography>
         ) : (
@@ -103,15 +118,15 @@ export default function AddressPage() {
             <Paper
               key={address.address_id}
               sx={{
-                p: 2,
+                p: { xs: 1.5, sm: 2 },
                 mb: 2,
-                backgroundColor: "secondary",
                 borderRadius: 2,
-                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center",
-                flexWrap: "wrap",
+                alignItems: "flex-start",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 1,
               }}
             >
               <Box>
@@ -129,7 +144,7 @@ export default function AddressPage() {
                 variant="outlined"
                 color="secondary"
                 size="small"
-                sx={{ mt: { xs: 1, sm: 0 } }}
+                sx={{ alignSelf: { xs: "flex-start", sm: "center" } }}
                 onClick={() => handleRemove(address.address_id)}
               >
                 🗑️ Remove
@@ -138,19 +153,19 @@ export default function AddressPage() {
           ))
         )}
 
-        {/* Add Address Button */}
+        {/* Add Address / Back Button */}
         <Box
           mt={4}
           display="flex"
           justifyContent="center"
-          gap={2}
           flexWrap="wrap"
+          gap={2}
         >
           <Button
             variant="outlined"
             color="secondary"
             component={Link}
-            to="/profile" // you can change this to wherever "Back" should go
+            to="/profile"
           >
             Back
           </Button>

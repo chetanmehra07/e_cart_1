@@ -9,6 +9,8 @@ import {
   Button,
   Divider,
   Snackbar,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 
@@ -30,6 +32,9 @@ const inputStyles = {
 };
 
 const ContactPage = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -48,7 +53,6 @@ const ContactPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       const res = await fetch(
         "https://e-cart-backend-yrbb.onrender.com/contact/add",
@@ -72,12 +76,12 @@ const ContactPage = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ px: { xs: 1, sm: 3 } }}>
       <Container maxWidth="xl">
         <Paper
           elevation={9}
           sx={{
-            p: 6,
+            p: { xs: 3, sm: 5, md: 6 },
             borderRadius: "2rem",
             boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
             backdropFilter: "blur(10px)",
@@ -92,6 +96,7 @@ const ContactPage = () => {
               fontFamily: "'Dancing Script', cursive",
               fontWeight: 700,
               color: "secondary.main",
+              fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
             }}
           >
             Contact Us
@@ -102,12 +107,13 @@ const ContactPage = () => {
             align="center"
             color="text.secondary"
             gutterBottom
+            sx={{ fontSize: { xs: "1rem", sm: "1.15rem" } }}
           >
             We'd love to hear from you. Feel free to reach out with any
             questions, feedback, or just a friendly hello!
           </Typography>
 
-          <Divider sx={{ my: 4 }} />
+          <Divider sx={{ my: { xs: 3, sm: 4 } }} />
 
           {/* Contact Form */}
           <Box
@@ -116,7 +122,7 @@ const ContactPage = () => {
               backdropFilter: "blur(12px)",
               boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
               borderRadius: 4,
-              p: { xs: 3, md: 5 },
+              p: { xs: 2, sm: 3, md: 5 },
             }}
           >
             <form onSubmit={handleSubmit}>
@@ -177,7 +183,7 @@ const ContactPage = () => {
                       bgcolor: "white",
                       color: "#6a1b9a",
                       fontWeight: "bold",
-                      fontSize: "1.2rem",
+                      fontSize: { xs: "1rem", sm: "1.2rem" },
                       borderRadius: "20px",
                       px: 4,
                       py: 1.3,
@@ -196,14 +202,14 @@ const ContactPage = () => {
             </form>
           </Box>
 
-          <Divider sx={{ my: 4 }} />
+          <Divider sx={{ my: { xs: 3, sm: 4 } }} />
 
           {/* Footer */}
           <Typography
             variant="body2"
             color="text.secondary"
             align="center"
-            sx={{ mt: 4 }}
+            sx={{ mt: { xs: 2, sm: 3 } }}
           >
             &copy; {new Date().getFullYear()} RE-STORE by Chetan Mehra. All
             rights reserved.
@@ -223,9 +229,9 @@ const ContactPage = () => {
           severity="success"
           variant="filled"
           sx={{
-            width: "600px", // custom width for the alert box
-            fontSize: "1.2rem",
-            py: 1.8,
+            width: isMobile ? "100%" : "600px",
+            fontSize: "1.1rem",
+            py: 1.6,
             borderRadius: "10px",
           }}
         >
@@ -245,9 +251,9 @@ const ContactPage = () => {
           severity="error"
           variant="filled"
           sx={{
-            width: "600px", // custom width for the alert box
-            fontSize: "1.2rem",
-            py: 1.8,
+            width: isMobile ? "100%" : "600px",
+            fontSize: "1.1rem",
+            py: 1.6,
             borderRadius: "10px",
           }}
         >

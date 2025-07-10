@@ -8,6 +8,8 @@ import {
   Alert,
   Button,
   Divider,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "../../app/store/store";
@@ -34,6 +36,9 @@ export default function OrderPage() {
   const [loading, setLoading] = useState(true);
   const [snackOpen, setSnackOpen] = useState(false);
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -56,9 +61,7 @@ export default function OrderPage() {
     try {
       const res = await fetch(
         `https://e-cart-backend-yrbb.onrender.com/orders/cancel?order_id=${order_id}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
       if (res.ok) {
         setOrders((prev) => prev.filter((o) => o.order_id !== order_id));
@@ -73,15 +76,21 @@ export default function OrderPage() {
 
   return (
     <Box p={{ xs: 2, md: 4 }}>
-      {/* Title + Buy History Button */}
+      {/* Header */}
       <Box
         display="flex"
+        flexDirection={{ xs: "column", sm: "row" }}
         justifyContent="space-between"
-        alignItems="center"
+        alignItems={{ xs: "flex-start", sm: "center" }}
+        gap={2}
         mb={4}
-        mt={-4}
+        mt={{ xs: -2, md: -4 }}
       >
-        <Typography variant="h3" fontWeight="bold" color="secondary">
+        <Typography
+          variant={isMobile ? "h5" : "h3"}
+          fontWeight="bold"
+          color="secondary"
+        >
           Your Orders
         </Typography>
 
@@ -91,36 +100,38 @@ export default function OrderPage() {
           to="/buyhistory"
           sx={{
             fontWeight: "bold",
-            fontSize: "1rem",
+            fontSize: { xs: "0.85rem", sm: "1rem" },
             borderRadius: 2,
-            padding: "8px 16px",
             px: 3,
-            color: "white ",
+            py: 1,
             backgroundColor: "secondary.main",
+            color: "white",
           }}
         >
           Buy History
         </Button>
       </Box>
 
+      {/* Content */}
       {loading ? (
         <Box textAlign="center">
           <CircularProgress color="secondary" />
         </Box>
       ) : orders.length === 0 ? (
-        <Typography textAlign="center" fontSize="1.3rem">
+        <Typography textAlign="center" fontSize={{ xs: "1rem", sm: "1.3rem" }}>
           No active orders found.
         </Typography>
       ) : (
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           {orders.map((order) => (
-            <Grid item xs={12} md={6} key={order.order_id}>
+            <Grid item xs={12} sm={12} md={6} key={order.order_id}>
               <Paper
                 sx={{
                   position: "relative",
                   display: "flex",
-                  gap: 3,
-                  p: 3,
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: 2,
+                  p: 2.5,
                   borderRadius: 3,
                   background: "rgba(135, 128, 138, 0.37)",
                   backdropFilter: "blur(20px)",
@@ -131,34 +142,36 @@ export default function OrderPage() {
                 {/* Cancel Button */}
                 <Button
                   variant="contained"
-                  size="large"
                   onClick={() => cancelOrder(order.order_id)}
                   sx={{
                     position: "absolute",
+                    top: 16,
+                    right: 16,
+                    fontSize: { xs: "0.75rem", sm: "1rem" },
+                    px: { xs: 2, sm: 3.5 },
+                    py: 0.5,
                     color: "secondary.main",
                     backgroundColor: "rgba(254, 252, 255, 0.93)",
-                    top: 20,
-                    right: 25,
                     fontWeight: "bold",
-                    fontSize: "1rem",
-                    borderRadius: 1.4,
-                    px: 3.5,
+                    borderRadius: 1.5,
+                    zIndex: 1,
                     "&:hover": {
-                      backgroundColor: "rgb(250, 250, 250)",
+                      backgroundColor: "#fafafa",
                     },
                   }}
                 >
                   Cancel
                 </Button>
 
+                {/* Product Image */}
                 <Link to={`/catalog/${order.product_id}`}>
                   <Box
                     component="img"
                     src={order.product_image}
                     alt={order.product_name}
                     sx={{
-                      width: 100,
-                      height: 100,
+                      width: { xs: 80, sm: 100 },
+                      height: { xs: 80, sm: 100 },
                       borderRadius: 2,
                       objectFit: "cover",
                       border: "2px solid #eee",
@@ -166,6 +179,7 @@ export default function OrderPage() {
                   />
                 </Link>
 
+                {/* Info */}
                 <Box flex={1}>
                   <Link
                     to={`/catalog/${order.product_id}`}
@@ -173,12 +187,10 @@ export default function OrderPage() {
                   >
                     <Typography
                       variant="h6"
+                      fontSize={{ xs: "1rem", sm: "1.1rem" }}
                       fontWeight="bold"
-                      gutterBottom
-                      sx={{
-                        color: "secondary.main",
-                        cursor: "pointer",
-                      }}
+                      color="secondary"
+                      sx={{ mb: 1 }}
                     >
                       {order.product_name}
                     </Typography>
@@ -193,17 +205,21 @@ export default function OrderPage() {
                   <Typography variant="body2">
                     <strong>Delivery:</strong> {order.delivery_date}
                   </Typography>
+
                   <Box
                     display="flex"
                     justifyContent="space-between"
                     alignItems="center"
+                    flexWrap="wrap"
+                    mt={1}
                   >
                     <Box>
                       <Typography
                         variant="body1"
-                        sx={{ color: "secondary.main", fontWeight: "bold" }}
+                        fontWeight="bold"
+                        color="secondary"
                       >
-                        $
+                        ₹
                         {(
                           (order.MRP / 100) *
                           (1 - order.discount / 100)
@@ -212,22 +228,19 @@ export default function OrderPage() {
                       <Typography
                         variant="caption"
                         color="text.secondary"
-                        sx={{ fontStyle: "italic" }}
+                        fontStyle="italic"
                       >
-                        <s>${(order.MRP / 100).toFixed(2)}</s> (
+                        <s>₹{(order.MRP / 100).toFixed(2)}</s> (
                         {order.discount.toFixed(0)}% OFF)
                       </Typography>
                     </Box>
 
-                    {/* Days Left */}
                     <Typography
                       variant="caption"
-                      sx={{
-                        fontStyle: "italic",
-                        color: "text.secondary",
-                        fontWeight: "bold",
-                        fontSize: "0.9rem",
-                      }}
+                      fontStyle="italic"
+                      fontWeight="bold"
+                      color="text.secondary"
+                      fontSize={{ xs: "0.75rem", sm: "0.85rem" }}
                     >
                       {(() => {
                         const today = new Date();
@@ -249,7 +262,10 @@ export default function OrderPage() {
 
                   <Divider sx={{ my: 1.5 }} />
 
-                  <Typography fontSize="0.9rem" fontWeight="bold">
+                  <Typography
+                    fontSize={{ xs: "0.85rem", sm: "0.95rem" }}
+                    fontWeight="bold"
+                  >
                     Delivery Address:
                   </Typography>
                   <Typography

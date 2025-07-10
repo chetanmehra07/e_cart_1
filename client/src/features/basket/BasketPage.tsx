@@ -9,10 +9,11 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
-
 import {
   useDeleteCartItemMutation,
   useFetchBasketQuery,
@@ -25,6 +26,10 @@ import { getGuestCart, saveGuestCart } from "./localCart";
 import { useState } from "react";
 
 export default function BasketPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
   const { user } = useAppSelector((state) => state.account);
   const loginid = user?.loginid;
   const isLoggedIn = !!loginid;
@@ -106,9 +111,14 @@ export default function BasketPage() {
           alignItems: "center",
           minHeight: "50vh",
           textAlign: "center",
+          px: 2,
         }}
       >
-        <Typography variant="h2" color="secondary" sx={{ fontWeight: "350" }}>
+        <Typography
+          variant={isMobile ? "h5" : isTablet ? "h4" : "h3"}
+          color="secondary"
+          sx={{ fontWeight: "350" }}
+        >
           Your cart is empty
         </Typography>
         <Button
@@ -116,10 +126,11 @@ export default function BasketPage() {
           color="secondary"
           size="large"
           sx={{
-            mt: 10,
+            mt: 8,
             px: 6,
             fontWeight: "bold",
             borderRadius: 2,
+            fontSize: isMobile ? "0.9rem" : "1rem",
             boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
             "&:hover": {
               transform: "scale(1.05)",
@@ -147,7 +158,7 @@ export default function BasketPage() {
 
   return (
     <>
-      <Grid container spacing={4} p={4}>
+      <Grid container spacing={4} p={{ xs: 2, sm: 4 }}>
         <Grid item xs={12} md={8}>
           {data.map((item) => {
             const unitPrice = (item.MRP / 100) * (1 - item.discount / 100);
@@ -158,6 +169,8 @@ export default function BasketPage() {
                 key={item.cart_id || item.product_id}
                 sx={{
                   display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  alignItems: { xs: "center", sm: "stretch" },
                   p: 2,
                   mb: 2,
                   background: "rgba(135, 128, 138, 0.37)",
@@ -165,8 +178,8 @@ export default function BasketPage() {
                   WebkitBackdropFilter: "blur(20px)",
                   boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.37)",
                   borderRadius: 2,
-                  alignItems: "stretch",
-                  minHeight: 130,
+                  gap: 2,
+                  position: "relative",
                 }}
               >
                 <Link to={`/catalog/${item.product_id}`}>
@@ -179,12 +192,12 @@ export default function BasketPage() {
                       height: 120,
                       borderRadius: 2,
                       objectFit: "cover",
-                      mr: 2,
+                      mx: { xs: "auto", sm: 0 },
                     }}
                   />
                 </Link>
 
-                <Box flex={1}>
+                <Box flex={1} width="100%" mt={{ xs: -1, sm: 0 }}>
                   <Link
                     to={`/catalog/${item.product_id}`}
                     style={{ textDecoration: "none" }}
@@ -193,13 +206,21 @@ export default function BasketPage() {
                       variant="h5"
                       fontWeight="bold"
                       color="secondary"
-                      sx={{ "&:hover": { color: "secondary.main" } }}
+                      sx={{
+                        mb: 0.5,
+                        textAlign: { xs: "center", sm: "left" },
+                        "&:hover": { color: "secondary.main" },
+                      }}
                     >
                       {item.product_name}
                     </Typography>
                   </Link>
 
-                  <Typography mt={0.5} color="text.primary">
+                  <Typography
+                    mt={0.5}
+                    color="text.primary"
+                    textAlign={{ xs: "center", sm: "left" }}
+                  >
                     ${unitPrice.toFixed(2)} × {item.item_count} ={" "}
                     <strong>${itemTotal.toFixed(2)}</strong>
                   </Typography>
@@ -208,11 +229,17 @@ export default function BasketPage() {
                     variant="caption"
                     color="secondary"
                     display="block"
+                    textAlign={{ xs: "center", sm: "left" }}
                   >
                     ({item.discount.toFixed(0)}% OFF)
                   </Typography>
 
-                  <Box display="flex" alignItems="center" mt={1}>
+                  <Box
+                    display="flex"
+                    justifyContent={{ xs: "center", sm: "flex-start" }}
+                    alignItems="center"
+                    mt={1}
+                  >
                     <IconButton
                       size="small"
                       disabled={loadingProductId === item.product_id}
@@ -285,12 +312,18 @@ export default function BasketPage() {
                   </Box>
                 </Box>
 
+                {/* Delete Icon for Desktop, repositioned for Mobile */}
                 <IconButton
                   aria-label="Remove item"
                   onClick={() => handleDeleteItem(item.product_id)}
                   sx={{
+                    position: { xs: "relative", sm: "absolute" },
+                    top: { sm: 16 },
+                    right: { sm: 16 },
+                    alignSelf: { xs: "center", sm: "auto" },
+                    mt: { xs: 0, sm: 0 },
                     borderRadius: 2,
-                    padding: "15px",
+                    padding: "0px",
                     "&:hover": {
                       boxShadow: 2,
                     },
@@ -314,12 +347,15 @@ export default function BasketPage() {
               boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.37)",
             }}
           >
-            <Typography variant="h4" sx={{ fontWeight: "400" }}>
+            <Typography
+              variant={isMobile ? "h5" : "h4"}
+              sx={{ fontWeight: "400" }}
+            >
               Order summary
             </Typography>
             <Typography
               color="secondary"
-              sx={{ fontSize: "0.88rem" }}
+              sx={{ fontSize: isMobile ? "0.8rem" : "0.88rem" }}
               gutterBottom
             >
               Orders over $100 qualify for free delivery!
@@ -348,10 +384,10 @@ export default function BasketPage() {
             <Divider sx={{ mb: 2 }} />
 
             <Box display="flex" justifyContent="space-between" mb={2}>
-              <Typography variant="h5" color="secondary">
+              <Typography variant={isMobile ? "h6" : "h5"} color="secondary">
                 Total
               </Typography>
-              <Typography variant="h5" color="secondary">
+              <Typography variant={isMobile ? "h6" : "h5"} color="secondary">
                 ${finalTotal.toFixed(2)}
               </Typography>
             </Box>
@@ -379,7 +415,7 @@ export default function BasketPage() {
                 color: "secondary.main",
                 backgroundColor: "whitesmoke",
                 borderRadius: "10px",
-                fontSize: "1rem",
+
                 fontWeight: "600",
                 padding: 1.2,
               }}
