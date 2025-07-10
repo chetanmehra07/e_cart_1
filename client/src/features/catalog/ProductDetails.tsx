@@ -232,11 +232,13 @@ export default function ProductDetails() {
                         );
                       }
                     }}
+                    onKeyDown={(e) => {
+                      e.preventDefault(); // ⛔ block all typing
+                    }}
                     inputProps={{
                       min: 1,
                       max: maxAllowedQuantity,
                       step: 1,
-                      readOnly: true, // <-- This is the key to disable manual typing!
                     }}
                     fullWidth
                     sx={{
@@ -246,6 +248,9 @@ export default function ProductDetails() {
                         "&.Mui-focused fieldset": {
                           borderColor: "secondary.main",
                           borderWidth: "2px",
+                        },
+                        "& input": {
+                          cursor: "default",
                         },
                       },
                     }}
