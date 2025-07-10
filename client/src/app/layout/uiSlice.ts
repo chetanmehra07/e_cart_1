@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 const getInitialDarkMOde = () => {
   const storedDarkMOde = localStorage.getItem("darkMode");
-  return storedDarkMOde ? JSON.parse(storedDarkMOde) : true;
+  return storedDarkMOde ? JSON.parse(storedDarkMOde) : false;
 };
 
 export const uiSlice = createSlice({
