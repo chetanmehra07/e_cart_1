@@ -9,7 +9,6 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-  TextField,
   Typography,
   Snackbar,
   Alert,
@@ -220,42 +219,52 @@ export default function ProductDetails() {
             {product.stock_avl > 0 ? (
               <>
                 <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="Quantity"
-                    type="number"
-                    value={quantity}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      if (!isNaN(val)) {
-                        setQuantity(
-                          Math.max(1, Math.min(val, maxAllowedQuantity))
-                        );
+                  <Box display="flex" alignItems="center" height="56px">
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() =>
+                        setQuantity((prev) => Math.max(1, prev - 1))
                       }
-                    }}
-                    onKeyDown={(e) => {
-                      e.preventDefault(); // ⛔ block all typing
-                    }}
-                    inputProps={{
-                      min: 1,
-                      max: maxAllowedQuantity,
-                      step: 1,
-                    }}
-                    fullWidth
-                    sx={{
-                      "& label.Mui-focused": { color: "secondary.main" },
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": { borderWidth: "2px" },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "secondary.main",
-                          borderWidth: "2px",
-                        },
-                        "& input": {
-                          cursor: "default",
-                        },
-                      },
-                    }}
-                  />
+                      disabled={quantity <= 1}
+                      sx={{ minWidth: 40, height: "100%", fontSize: "1.5rem" }}
+                    >
+                      −
+                    </Button>
+
+                    <Box
+                      px={2}
+                      mx={1}
+                      height="100%"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      border="2px solid"
+                      borderColor="secondary.main"
+                      borderRadius={1}
+                      minWidth={60}
+                      fontSize="1.2rem"
+                      fontWeight={500}
+                    >
+                      {quantity}
+                    </Box>
+
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() =>
+                        setQuantity((prev) =>
+                          Math.min(prev + 1, maxAllowedQuantity)
+                        )
+                      }
+                      disabled={quantity >= maxAllowedQuantity}
+                      sx={{ minWidth: 40, height: "100%", fontSize: "1.5rem" }}
+                    >
+                      +
+                    </Button>
+                  </Box>
                 </Grid>
+
                 <Grid item xs={12} sm={6}>
                   <Button
                     fullWidth
