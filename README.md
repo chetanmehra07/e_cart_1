@@ -53,20 +53,28 @@ A full-stack e-commerce cart application built to demonstrate real-world shoppin
   </tr>
 </table>
 
-## 📸 Screenshots
+---
+
+## Output Snapshots
 
 Product listing and cart flow of the application.
 
 <table width="100%">
   <tr>
-    <td width="33%">
-      <img src="./screenshots/Screenshot 2025-07-10 231554.png" alt="Home Page">
+    <td width="50%" align="center">
+      <img src="./screenshots/Screenshot 2025-07-10 231554.png" alt="Home Page" />
     </td>
-    <td width="33%">
-      <img src="./screenshots/Screenshot 2025-07-10 231441.png" alt="Cart Page">
+    <td width="50%" align="center">
+      <img src="./screenshots/Screenshot 2025-07-10 231441.png" alt="Products Page" />
     </td>
-    <td width="33%">
-      <img src="./screenshots/Screenshot 2025-07-10 232322.png" alt="Checkout Page">
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="./screenshots/Screenshot 2025-07-10 232322.png" alt="Cheackout Page" />
+    </td>
+    <td width="50%" align="center">
+      <img src="./screenshots/Screenshot 2025-07-10 233305.png" alt="History Page" />
     </td>
   </tr>
 </table>
+
