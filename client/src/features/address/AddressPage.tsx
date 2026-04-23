@@ -39,7 +39,7 @@ export default function AddressPage() {
 
       try {
         const res = await fetch(
-          `https://e-cart-backend-yrbb.onrender.com/user_address/get?login_id=${user.loginid}`
+          `http://127.0.0.1:8000/user_address/get?login_id=${user.loginid}`
         );
         const data = await res.json();
         setAddresses(data);
@@ -56,7 +56,7 @@ export default function AddressPage() {
   const handleRemove = async (address_id: number) => {
     try {
       const response = await fetch(
-        `https://e-cart-backend-yrbb.onrender.com/user_address/delete?address_id=${address_id}`,
+        `http://127.0.0.1:8000/user_address/delete?address_id=${address_id}`,
         {
           method: "DELETE",
         }

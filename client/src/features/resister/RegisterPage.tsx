@@ -105,14 +105,11 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch(
-        "https://e-cart-backend-yrbb.onrender.com/signup",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch("http://127.0.0.1:8000/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
       if (!response.ok) {
         const errText = await response.text();

@@ -37,7 +37,7 @@ export default function BuyHistoryPage() {
     const fetchHistory = async () => {
       try {
         const res = await fetch(
-          `https://e-cart-backend-yrbb.onrender.com/buy_history?login_id=${login_id}`
+          `http://127.0.0.1:8000/buy_history?login_id=${login_id}`
         );
         if (!res.ok) throw new Error("Failed to fetch buy history");
         const data = await res.json();
